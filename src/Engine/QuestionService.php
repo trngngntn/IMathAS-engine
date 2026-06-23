@@ -70,10 +70,19 @@ final class QuestionService
         foreach ($vars as $key => $value) {
             $sanitized[ltrim((string) $key, '$')] = $value;
         }
-        extract($sanitized);
-        ob_start();
-        eval($code);
-        return (string) ob_get_clean();
+
+        // Isolate the eval in a static closure so author-supplied vars cannot
+        // clobber this method's locals (e.g. a control var named $code that
+        // would otherwise overwrite the solution code before eval runs). Only
+        // the vars + code reach the closure, under collision-unlikely names.
+        $run = static function (array $__vars, string $__code): string {
+            extract($__vars);
+            ob_start();
+            eval($__code);
+            return (string) ob_get_clean();
+        };
+
+        return $run($sanitized, $code);
     }
 
     private function freshState(int $seed): array

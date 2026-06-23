@@ -13,9 +13,14 @@ final class JsonRequestTest extends TestCase
 {
     public function test_require_post_rejects_get(): void
     {
-        $this->expectException(EngineException::class);
-        $this->expectExceptionMessage('Method Not Allowed');
-        JsonRequest::requirePost('GET');
+        try {
+            JsonRequest::requirePost('GET');
+            self::fail('Expected EngineException for GET');
+        } catch (EngineException $e) {
+            // errorCode drives the 405 status mapping in problems.php.
+            self::assertSame('method_not_allowed', $e->errorCode);
+            self::assertSame('Method Not Allowed', $e->getMessage());
+        }
     }
 
     public function test_require_post_allows_post(): void
