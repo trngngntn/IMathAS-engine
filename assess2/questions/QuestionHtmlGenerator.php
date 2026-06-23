@@ -260,11 +260,13 @@ class QuestionHtmlGenerator
         // Eval the question writer's question code.
         // In older questions, code is broken up into three parts.
         // In "modern" questions, the last two parts are empty.
+        $controlVars = null;
         try {
           $db_qsetid = $this->questionParams->getDbQuestionSetId();
           $controlinterpcode = interpret('control', $quesData['qtype'], $quesData['control'], 1, [$db_qsetid]);
           if ($controlinterpcode !== 'error;') {
             eval($controlinterpcode);
+            $controlVars = $varsOutput ?? null;
           }
           unset($controlinterpcode);
           if (!empty($quesData['qcontrol'])) {
@@ -1105,6 +1107,7 @@ class QuestionHtmlGenerator
             $externalReferences
         );
 
+        $question->setVarsOutput($controlVars ?? []);
         $question->setQuestionLastMod($quesData['lastmoddate']);
 
         if (isset($onGetQuestion) && is_callable($onGetQuestion)) {

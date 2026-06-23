@@ -26,6 +26,7 @@ class Question
     private $questionLastMod = 0;
 
     private $errors = array();
+    private $varsOutput = array();
 
     /**
      * Question constructor.
@@ -55,6 +56,14 @@ class Question
         $this->solutionContentDetailed = $solutionContentDetailed;
         $this->correctAnswersForParts = $correctAnswersForParts;
         $this->externalReferences = $externalReferences;
+    }
+
+    public function setVarsOutput($vars) {
+        $this->varsOutput = $vars;
+    }
+
+    public function getVarsOutput() {
+        return $this->varsOutput;
     }
 
     /**
