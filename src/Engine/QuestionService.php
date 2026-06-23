@@ -7,6 +7,8 @@ namespace IMathAS\Engine;
 use AssessStandalone;
 use IMathAS\Engine\Dto\RenderRequest;
 use IMathAS\Engine\Dto\RenderResult;
+use IMathAS\Engine\Dto\ScoreRequest;
+use IMathAS\Engine\Dto\ScoreResult;
 use IMathAS\Engine\Dto\Stype;
 use PDO;
 
@@ -57,6 +59,38 @@ final class QuestionService
             vars: $question->getVarsOutput(),
             answers: $question->getCorrectAnswersForParts(),
             jsparams: $disp['jsparams'] ?? [],
+        );
+    }
+
+    public function score(ScoreRequest $req): ScoreResult
+    {
+        $a2 = new AssessStandalone($this->dbh);
+
+        $qdata = $this->defaultQuestionData();
+        $qdata['qtype'] = $req->qtype;
+        $qdata['control'] = $req->control;
+
+        $a2->setQuestionData(self::QUESTION_SLOT, $qdata);
+        $a2->setState($this->freshState($req->seed));
+
+        // The engine reads the student answer from $_POST['qn'.<slot>].
+        $_POST['qn' . self::QUESTION_SLOT] = $req->answer;
+
+        $partsToScore = true;
+        if ($req->partsToScore !== null) {
+            $partsToScore = [];
+            foreach ($req->partsToScore as $pn) {
+                $partsToScore[$pn] = true;
+            }
+        }
+
+        $result = $a2->scoreQuestion(self::QUESTION_SLOT, $partsToScore);
+
+        return new ScoreResult(
+            scores: array_values($result['scores'] ?? []),
+            raw: array_values($result['raw'] ?? []),
+            answeights: array_values($result['answeights'] ?? []),
+            allAnswered: (bool) ($result['allans'] ?? false),
         );
     }
 
