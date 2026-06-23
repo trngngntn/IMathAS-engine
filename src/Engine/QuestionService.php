@@ -44,22 +44,17 @@ final class QuestionService
 
         $question = $a2->getQuestion();
 
-        // This engine's Question model does not expose generated template vars
-        // (no getVarsOutput()); only rendered content + correct answers are
-        // available. vars stay empty until a future engine task surfaces them.
-        $vars = [];
-
         if ($req->stype === Stype::Template) {
             $solution = $question->getSolutionContent();
         } else {
-            $solution = $this->evalSolutionCode($req->solution, $vars);
+            $solution = $this->evalSolutionCode($req->solution, $question->getVarsOutput());
         }
 
         return new RenderResult(
             seed: $req->seed,
             question: $question->getQuestionContent(),
             solution: $solution,
-            vars: $vars,
+            vars: $question->getVarsOutput(),
             answers: $question->getCorrectAnswersForParts(),
             jsparams: $disp['jsparams'] ?? [],
         );
