@@ -18,7 +18,7 @@ final class JsonRequest
     public static function parseJsonBody(string $raw): array
     {
         $data = json_decode($raw, true);
-        if (!is_array($data)) {
+        if (!is_array($data) || array_is_list($data) && $data !== []) {
             throw new EngineException('invalid_request', 'Request body is not a valid JSON object');
         }
         return $data;
