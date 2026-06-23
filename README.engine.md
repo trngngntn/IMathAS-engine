@@ -11,6 +11,7 @@ algorithmic questions and **grade** answers. No LMS, no database, no frontend.
   - `pdo_sqlite` — required for the throwaway in-memory DB handle (bundled with PHP).
   - `gettext` — recommended for i18n (installed in the image; engine falls back to a `_()` stub if absent).
   - `gd` — optional, only for server-side graph-image rendering paths.
+- **unzip** — required OS package (installed in the image; used by Composer to unpack vendor archives).
 - **Composer** — for PSR-4 autoloading and dev tooling (provided in the container).
 
 ## Install & run
@@ -20,7 +21,12 @@ docker compose up -d --build          # build php:8.4-fpm + nginx, start stack
 docker compose exec php composer install   # install autoload + dev deps (PHPUnit)
 ```
 
-The service is then available at `http://localhost:8088`.
+The service is then available at `http://localhost:8088`. Verify the live stack
+with the smoke script:
+
+```bash
+./scripts/smoke.sh                    # asserts render, score, and 405 method guards
+```
 
 ## Endpoints
 
