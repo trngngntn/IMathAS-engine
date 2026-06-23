@@ -41,5 +41,6 @@ final class QuestionServiceScoreTest extends TestCase
         ]));
 
         self::assertEqualsWithDelta(0.0, $result->scores[0] ?? 1, 0.01);
+        self::assertTrue($result->allAnswered);
     }
 }

@@ -73,9 +73,6 @@ final class QuestionService
         $a2->setQuestionData(self::QUESTION_SLOT, $qdata);
         $a2->setState($this->freshState($req->seed));
 
-        // The engine reads the student answer from $_POST['qn'.<slot>].
-        $_POST['qn' . self::QUESTION_SLOT] = $req->answer;
-
         $partsToScore = true;
         if ($req->partsToScore !== null) {
             $partsToScore = [];
@@ -84,7 +81,22 @@ final class QuestionService
             }
         }
 
-        $result = $a2->scoreQuestion(self::QUESTION_SLOT, $partsToScore);
+        // The engine reads the student answer from $_POST['qn'.<slot>]. Capture
+        // any prior value and restore it in finally so we never leave residue in
+        // the superglobal, even if scoreQuestion() throws.
+        $slotKey = 'qn' . self::QUESTION_SLOT;
+        $hadPrev = array_key_exists($slotKey, $_POST);
+        $prev = $_POST[$slotKey] ?? null;
+        $_POST[$slotKey] = $req->answer;
+        try {
+            $result = $a2->scoreQuestion(self::QUESTION_SLOT, $partsToScore);
+        } finally {
+            if ($hadPrev) {
+                $_POST[$slotKey] = $prev;
+            } else {
+                unset($_POST[$slotKey]);
+            }
+        }
 
         return new ScoreResult(
             scores: array_values($result['scores'] ?? []),
