@@ -13,6 +13,7 @@ final class RenderResult
         public readonly array $vars,
         public readonly array $answers,
         public readonly array $jsparams,
+        public readonly array $errors = [],
     ) {
     }
 

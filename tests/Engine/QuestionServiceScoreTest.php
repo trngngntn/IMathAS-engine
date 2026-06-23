@@ -43,4 +43,20 @@ final class QuestionServiceScoreTest extends TestCase
         self::assertEqualsWithDelta(0.0, $result->scores[0] ?? 1, 0.01);
         self::assertTrue($result->allAnswered);
     }
+
+    public function test_engine_errors_ride_along_in_result(): void
+    {
+        // Control that throws during eval (call to an undefined function). The
+        // engine catches it via its eval exception handler and records a soft
+        // error rather than fatalling, so scoring still returns a result and
+        // the domain error must be surfaced in $result->errors.
+        $result = $this->service()->score(ScoreRequest::fromArray([
+            'qtype' => 'number',
+            'control' => "\$answer = nonexistentfunc();",
+            'seed' => 1234,
+            'answer' => '12',
+        ]));
+
+        self::assertNotEmpty($result->errors);
+    }
 }

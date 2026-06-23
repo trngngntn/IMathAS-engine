@@ -20,7 +20,7 @@ try {
     JsonRequest::requirePost($_SERVER['REQUEST_METHOD'] ?? 'GET');
     $payload = JsonRequest::parseJsonBody(file_get_contents('php://input') ?: '');
     $result = (new QuestionService($GLOBALS['DBH']))->render(RenderRequest::fromArray($payload));
-    $response->success($result->toArray());
+    $response->success($result->toArray(), $result->errors);
 } catch (EngineException $e) {
     $status = $e->errorCode === 'method_not_allowed' ? 405 : 400;
     $response->failure($e->errorCode, $e->getMessage(), $status);

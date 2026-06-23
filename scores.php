@@ -19,7 +19,7 @@ $response = new JsonResponse();
 try {
     JsonRequest::requirePost($_SERVER['REQUEST_METHOD'] ?? 'GET');
     $result = (new QuestionService($GLOBALS['DBH']))->score(ScoreRequest::fromArray($_POST));
-    $response->success($result->toArray());
+    $response->success($result->toArray(), $result->errors);
 } catch (EngineException $e) {
     $status = $e->errorCode === 'method_not_allowed' ? 405 : 400;
     $response->failure($e->errorCode, $e->getMessage(), $status);

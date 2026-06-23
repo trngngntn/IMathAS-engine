@@ -59,6 +59,7 @@ final class QuestionService
             vars: $question->getVarsOutput(),
             answers: $question->getCorrectAnswersForParts(),
             jsparams: $disp['jsparams'] ?? [],
+            errors: array_values($disp['errors'] ?? []),
         );
     }
 
@@ -103,6 +104,7 @@ final class QuestionService
             raw: array_values($result['raw'] ?? []),
             answeights: array_values($result['answeights'] ?? []),
             allAnswered: (bool) ($result['allans'] ?? false),
+            errors: array_values($result['errors'] ?? []),
         );
     }
 

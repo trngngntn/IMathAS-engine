@@ -11,6 +11,7 @@ final class ScoreResult
         public readonly array $raw,
         public readonly array $answeights,
         public readonly bool $allAnswered,
+        public readonly array $errors = [],
     ) {
     }
 
