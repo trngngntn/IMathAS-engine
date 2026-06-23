@@ -43,9 +43,51 @@ final class RenderRequestTest extends TestCase
         self::assertGreaterThanOrEqual(0, $req->seed);
     }
 
-    public function test_missing_required_field_throws_invalid_request(): void
+    public function test_missing_qtype_throws_invalid_request(): void
     {
-        $this->expectException(EngineException::class);
-        RenderRequest::fromArray(['qtype' => 'number', 'control' => '$a=5']); // no qtext
+        $this->assertMissingFieldThrows(['control' => '$a=5', 'qtext' => 'Find $a']);
+    }
+
+    public function test_missing_control_throws_invalid_request(): void
+    {
+        $this->assertMissingFieldThrows(['qtype' => 'number', 'qtext' => 'Find $a']);
+    }
+
+    public function test_missing_qtext_throws_invalid_request(): void
+    {
+        $this->assertMissingFieldThrows(['qtype' => 'number', 'control' => '$a=5']);
+    }
+
+    public function test_empty_qtext_throws_invalid_request(): void
+    {
+        $this->assertMissingFieldThrows(['qtype' => 'number', 'control' => '$a=5', 'qtext' => '']);
+    }
+
+    public function test_invalid_stype_throws_invalid_request(): void
+    {
+        try {
+            RenderRequest::fromArray([
+                'qtype' => 'number',
+                'control' => '$a=5',
+                'qtext' => 'Find $a',
+                'stype' => 'html',
+            ]);
+            self::fail('Expected EngineException was not thrown');
+        } catch (EngineException $e) {
+            self::assertSame('invalid_request', $e->errorCode);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function assertMissingFieldThrows(array $data): void
+    {
+        try {
+            RenderRequest::fromArray($data);
+            self::fail('Expected EngineException was not thrown');
+        } catch (EngineException $e) {
+            self::assertSame('invalid_request', $e->errorCode);
+        }
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace IMathAS\Engine\Dto;
 
 use IMathAS\Engine\EngineException;
+use ValueError;
 
 final class RenderRequest
 {
@@ -28,13 +29,19 @@ final class RenderRequest
 
         $seed = isset($data['seed']) ? (int) $data['seed'] : random_int(0, 10000);
 
+        try {
+            $stype = Stype::fromString($data['stype'] ?? null);
+        } catch (ValueError $e) {
+            throw new EngineException('invalid_request', "Invalid stype: {$data['stype']}");
+        }
+
         return new self(
             qtype: $data['qtype'],
             control: $data['control'],
             qtext: $data['qtext'],
             solution: isset($data['solution']) && is_string($data['solution']) ? $data['solution'] : '',
             seed: $seed,
-            stype: Stype::fromString($data['stype'] ?? null),
+            stype: $stype,
         );
     }
 }

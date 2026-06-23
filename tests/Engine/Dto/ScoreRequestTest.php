@@ -39,9 +39,46 @@ final class ScoreRequestTest extends TestCase
         self::assertNull($req->partsToScore);
     }
 
+    public function test_missing_qtype_throws_invalid_request(): void
+    {
+        $this->assertInvalidRequest(['control' => '$answer=12', 'seed' => 7, 'answer' => '12']);
+    }
+
+    public function test_missing_control_throws_invalid_request(): void
+    {
+        $this->assertInvalidRequest(['qtype' => 'number', 'seed' => 7, 'answer' => '12']);
+    }
+
     public function test_missing_answer_throws_invalid_request(): void
     {
-        $this->expectException(EngineException::class);
-        ScoreRequest::fromArray(['qtype' => 'number', 'control' => '$answer=12', 'seed' => 7]);
+        $this->assertInvalidRequest(['qtype' => 'number', 'control' => '$answer=12', 'seed' => 7]);
+    }
+
+    public function test_missing_seed_throws_invalid_request(): void
+    {
+        $this->assertInvalidRequest(['qtype' => 'number', 'control' => '$answer=12', 'answer' => '12']);
+    }
+
+    public function test_non_numeric_seed_throws_invalid_request(): void
+    {
+        $this->assertInvalidRequest([
+            'qtype' => 'number',
+            'control' => '$answer=12',
+            'answer' => '12',
+            'seed' => 'abc',
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function assertInvalidRequest(array $data): void
+    {
+        try {
+            ScoreRequest::fromArray($data);
+            self::fail('Expected EngineException was not thrown');
+        } catch (EngineException $e) {
+            self::assertSame('invalid_request', $e->errorCode);
+        }
     }
 }
