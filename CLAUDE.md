@@ -80,8 +80,14 @@ isolated scope).
   verbatim from upstream and intentionally kept (preview markup is irrelevant to
   an API consumer).
 - `includes/` was pruned to only what the engine transitively needs: `sanitize`,
-  `htmLawed`, `filehandler` (→ `S3`, `svg-sanitizer/`), `Rand`. Adding a new engine
-  path that needs another `includes/` file means restoring it.
+  `htmLawed`, `filehandler`, `Rand`. (`filehandler` stays because `htmLawed` —
+  loaded on every request via `sanitize` — calls it for inline `data:image`
+  handling; most of its other functions are dead but harmless, gated behind an
+  `$AWSkey`/`filehandlertype=='s3'` that this engine never sets.)
+- **No file uploads.** The `file` answer type (`FileScorePart`/`FileUploadAnswerBox`),
+  `includes/S3.php`, and `includes/svg-sanitizer/` were removed. A `file` qtype now
+  returns a clean "Unknown answer type" engine error, not a fatal. Consumers handle
+  any file handling externally.
 - **Graphs render client-side only.** The server-side SVG→PNG rasterizer
   (`filter/graph/asciisvgimg.php`) and its `graphdisp==2` code paths in
   `filter/filter.php` were removed. `showplot`/`showasciisvg` emit client-side
