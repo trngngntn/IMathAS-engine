@@ -10,7 +10,6 @@ require_once __DIR__ . '/ChoicesScorePart.php';
 require_once __DIR__ . '/ComplexScorePart.php';
 require_once __DIR__ . '/ConditionalScorePart.php';
 require_once __DIR__ . '/DrawingScorePart.php';
-require_once __DIR__ . '/EssayScorePart.php';
 require_once __DIR__ . '/FunctionExpressionScorePart.php';
 require_once __DIR__ . '/IntervalScorePart.php';
 require_once __DIR__ . '/MatchingScorePart.php';
@@ -95,9 +94,6 @@ class ScorePartFactory
                 break;
             case 'draw':
                 return new DrawingScorePart($scoreQuestionParams);
-                break;
-            case 'essay':
-                return new EssayScorePart($scoreQuestionParams);
                 break;
             case 'interval':
             case 'calcinterval':

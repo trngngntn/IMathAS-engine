@@ -9,7 +9,6 @@ require_once __DIR__ . '/CalculatedMatrixAnswerBox.php';
 require_once __DIR__ . '/ChoicesAnswerBox.php';
 require_once __DIR__ . '/ComplexAnswerBox.php';
 require_once __DIR__ . '/DrawingAnswerBox.php';
-require_once __DIR__ . '/EssayAnswerBox.php';
 require_once __DIR__ . '/FunctionExpressionAnswerBox.php';
 require_once __DIR__ . '/IntervalAnswerBox.php';
 require_once __DIR__ . '/MatchingAnswerBox.php';
@@ -96,9 +95,6 @@ class AnswerBoxFactory
                 break;
             case 'draw':
                 return new DrawingAnswerBox($answerBoxParams);
-                break;
-            case 'essay':
-                return new EssayAnswerBox($answerBoxParams);
                 break;
             case 'numfunc':
                 return new FunctionExpressionAnswerBox($answerBoxParams);
