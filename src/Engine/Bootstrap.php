@@ -24,12 +24,8 @@ final class Bootstrap
 
         $root = dirname(__DIR__, 2);
 
-        // gettext provides _() as a built-in (default in the Docker image); this
-        // is the pass-through fallback if the extension is absent. No i18n
-        // catalogs are shipped.
-        if (!function_exists('_')) {
-            function _($s) { return $s; }
-        }
+        // (The _() gettext shim is defined globally via Composer's files
+        // autoload — see src/Engine/functions.php — so it is always available.)
 
         // Web path roots used by the engine when building asset URLs in the
         // generated HTML. Empty = served at the web root (relative URLs).

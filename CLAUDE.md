@@ -53,8 +53,9 @@ It defines the constants/globals the engine reads (`imasroot`/`staticroot` = `''
 i.e. served at web root; `DBH`, `myrights`, `useeqnhelper`), sets `$_SESSION`
 render prefs (`graphdisp`/`drawentry` = 1, which also keep the DB branch
 unreachable), and includes `includes/sanitize.php`. No auth, no DB, no LMS. The
-engine's `_()` localization calls resolve to the gettext built-in (pass-through),
-with a fallback `_()` defined in `Bootstrap`; no translation catalogs are shipped.
+engine's `_()` localization calls resolve to a global pass-through shim
+(`src/Engine/functions.php`, loaded via Composer's files autoload), so the
+gettext extension is not required and no translation catalogs are shipped.
 
 ## API contract
 

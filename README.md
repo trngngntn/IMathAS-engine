@@ -7,9 +7,9 @@ algorithmic questions and **grade** answers. No LMS, no database, no frontend.
 
 - **Docker** + **Docker Compose** — runs `php:8.4-fpm` + nginx.
 - **PHP 8.4** (provided by the container). Extensions:
-  - `mbstring` — required (installed in the image).
-  - `pdo_sqlite` — required for the throwaway in-memory DB handle (bundled with PHP).
-  - `gettext` — recommended (installed in the image; provides the built-in `_()`). The engine ships no translation catalogs; `Bootstrap` defines a pass-through `_()` fallback if the extension is absent.
+  - `mbstring` — required (installed in the image; built against `libonig-dev`).
+  - `pdo_sqlite` — required for the throwaway in-memory DB handle (bundled with PHP; not separately installed).
+  - The engine's `_()` localization calls are covered by a global pass-through shim (`src/Engine/functions.php`, loaded via Composer's files autoload), so the **gettext extension is not required**.
 - **unzip** — required OS package (installed in the image; used by Composer to unpack vendor archives).
 - **Composer** — for PSR-4 autoloading and dev tooling (provided in the container).
 

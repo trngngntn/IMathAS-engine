@@ -8,7 +8,10 @@
     "autoload": {
         "psr-4": {
             "IMathAS\\Engine\\": "src/Engine/"
-        }
+        },
+        "files": [
+            "src/Engine/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
