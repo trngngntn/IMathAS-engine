@@ -79,15 +79,17 @@ isolated scope).
   `QuestionHtmlGenerator`). `genVarsOutput` emits `$hidepreview=1` — this is
   verbatim from upstream and intentionally kept (preview markup is irrelevant to
   an API consumer).
-- `includes/` was pruned to only what the engine transitively needs: `sanitize`,
-  `htmLawed`, `filehandler`, `Rand`. (`filehandler` stays because `htmLawed` —
-  loaded on every request via `sanitize` — calls it for inline `data:image`
-  handling; most of its other functions are dead but harmless, gated behind an
-  `$AWSkey`/`filehandlertype=='s3'` that this engine never sets.)
-- **No file uploads.** The `file` answer type (`FileScorePart`/`FileUploadAnswerBox`),
-  `includes/S3.php`, and `includes/svg-sanitizer/` were removed. A `file` qtype now
-  returns a clean "Unknown answer type" engine error, not a fatal. Consumers handle
-  any file handling externally.
+- `includes/` is down to two files: `sanitize.php` (input/output sanitization
+  helpers — `Sanitize::encodeStringForDisplay`, `generateAttributeString`, etc.,
+  used throughout) and `Rand.php` (seeded RNG). Adding an engine path that needs
+  another `includes/` file means restoring it.
+- **No `file` or `essay` answer types.** Both were removed (`FileScorePart`/
+  `FileUploadAnswerBox`/`EssayScorePart`/`EssayAnswerBox`), and with them the entire
+  HTML-sanitizer/file-storage chain they were the only consumers of: `htmLawed.php`,
+  `filehandler.php`, `S3.php`, `svg-sanitizer/`. (htmLawed's `myhtmLawed` was called
+  only when grading an essay answer; filehandler/S3 only on file upload.) A `file` or
+  `essay` qtype now returns a clean "Unknown answer type" engine error (HTTP 200, in
+  `errors`), not a fatal. Consumers handle any rich-text/file input externally.
 - **Graphs render client-side only.** The server-side SVG→PNG rasterizer
   (`filter/graph/asciisvgimg.php`) and its `graphdisp==2` code paths in
   `filter/filter.php` were removed. `showplot`/`showasciisvg` emit client-side
@@ -106,5 +108,5 @@ Always run both after engine-adjacent changes:
 covers render + score (correct/wrong) against the real engine; the smoke script
 gates the live endpoints. For broad changes, render across many `qtype`s
 (number, calculated, choices, multans, matching, numfunc, matrix, interval,
-ntuple, string, essay, draw, multipart, conditional) — that is how the strip was
+ntuple, string, draw, multipart, conditional) — that is how the strip was
 verified safe.
