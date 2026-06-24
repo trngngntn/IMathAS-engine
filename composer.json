@@ -5,14 +5,7 @@
     "require-dev": {
         "phpunit/phpunit": "^11"
     },
-    "autoload": {
-        "psr-4": {
-            "IMathAS\\Engine\\": "src/Engine/"
-        },
-        "files": [
-            "src/Engine/functions.php"
-        ]
-    },
+    "comment": "Composer is DEV-ONLY here (it installs PHPUnit). The engine has no runtime autoloader dependency — production loads classes via src/Engine/autoload.php. autoload-dev lets PHPUnit find the test classes.",
     "autoload-dev": {
         "psr-4": {
             "IMathAS\\Engine\\Tests\\": "tests/Engine/"

@@ -1,0 +1,19 @@
+# Keep the production build context (and image) lean: exclude dev-only and
+# non-runtime files. The dev image (Dockerfile.dev) bind-mounts the source at
+# runtime, so excluding these here does not affect development.
+.git
+.gitignore
+.gitattributes
+.dockerignore
+.superpowers
+vendor
+tests
+docs
+scripts
+phpunit.xml.dist
+.phpunit.result.cache
+docker-compose.yml
+docker-compose.dev.yml
+Dockerfile
+Dockerfile.dev
+*.md

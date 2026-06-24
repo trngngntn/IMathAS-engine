@@ -14,17 +14,31 @@ client assets) has been stripped out. What remains is the assessment engine
 
 ## Requirements & run
 
-PHP 8.4. Everything runs in Docker (`php:8.4-fpm` + nginx, **no database**):
+PHP 8.4. Everything runs in Docker (`php:8.4-fpm` + nginx, **no database**).
+
+Two stacks (mirroring `Dockerfile`/`Dockerfile.dev`): **prod** is the bare
+`docker-compose.yml` (code baked into the image, no Composer, no `vendor/`);
+**dev** is `docker-compose.dev.yml` (source bind-mounted, Composer present for
+PHPUnit).
 
 ```bash
-docker compose up -d --build            # build + start, serves on http://localhost:8088
-docker compose exec php composer install
-docker compose exec php vendor/bin/phpunit   # full test suite (auto-discovers phpunit.xml.dist)
-./scripts/smoke.sh                       # live end-to-end: render + score + 405 guards
+# production
+docker compose up -d --build                                   # serves on http://localhost:8088
+
+# development + tests
+docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml exec php composer install        # PHPUnit (dev only)
+docker compose -f docker-compose.dev.yml exec php vendor/bin/phpunit      # full suite
+./scripts/smoke.sh                                             # live render + score + 405 guards
 ```
 
-There is no PHP on the host — run all `composer`/`phpunit`/`php` commands via
-`docker compose exec php ...`.
+There is no PHP on the host — run `composer`/`phpunit`/`php` via
+`docker compose -f docker-compose.dev.yml exec php ...`.
+
+There is **no runtime Composer dependency**: engine classes load through the
+hand-written `src/Engine/autoload.php` (required by the endpoints and by the
+PHPUnit bootstrap, so the suite exercises the same autoloader prod uses). When
+adding a class under `src/Engine/`, add a `require_once` line to it.
 
 ## Architecture
 
@@ -33,7 +47,7 @@ Thin endpoints → service layer → legacy engine.
 | Layer | Files |
 |-------|-------|
 | Endpoints | `question.php` → `POST /question` (render, **JSON** body), `score.php` → `POST /score` (grade, **form-encoded** body) |
-| Service (`IMathAS\Engine\`, PSR-4 → `src/Engine/`) | `Bootstrap` (DB-less init), `QuestionService` (wraps `AssessStandalone`), `Dto/*` (readonly DTOs + `Stype` enum), `Http/{JsonRequest,JsonResponse}`, `EngineException` |
+| Service (`IMathAS\Engine\`, loaded via `src/Engine/autoload.php`) | `Bootstrap` (DB-less init), `QuestionService` (wraps `AssessStandalone`), `Dto/*` (readonly DTOs + `Stype` enum), `Http/{JsonRequest,JsonResponse}`, `Diagnostics`, `EngineException` |
 | Engine (kept as-is) | `assess2/AssessStandalone.php`, `assess2/questions/*`, `assessment/{macros,interpret5,mathparser,mathphp2}.php` + `assessment/macros/*`, `assessment/libs/*` (loaded dynamically via `loadlibrary`) |
 
 ### DB-less design (important)
@@ -54,7 +68,7 @@ i.e. served at web root; `DBH`, `myrights`, `useeqnhelper`), sets `$_SESSION`
 render prefs (`graphdisp`/`drawentry` = 1, which also keep the DB branch
 unreachable), and includes `includes/sanitize.php`. No auth, no DB, no LMS. The
 engine's `_()` localization calls resolve to a global pass-through shim
-(`src/Engine/functions.php`, loaded via Composer's files autoload), so the
+(`src/Engine/functions.php`, required by `src/Engine/autoload.php`), so the
 gettext extension is not required and no translation catalogs are shipped.
 
 ## API contract
@@ -121,7 +135,8 @@ isolated scope).
 ## Verifying changes
 
 Always run both after engine-adjacent changes:
-`docker compose exec php vendor/bin/phpunit` and `./scripts/smoke.sh`. The suite
+`docker compose -f docker-compose.dev.yml exec php vendor/bin/phpunit` and
+`./scripts/smoke.sh`. The suite
 covers render + score (correct/wrong) against the real engine; the smoke script
 gates the live endpoints. For broad changes, render across many `qtype`s
 (number, calculated, choices, multans, matching, numfunc, matrix, interval,

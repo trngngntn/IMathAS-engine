@@ -10,7 +10,7 @@ use IMathAS\Engine\Http\JsonRequest;
 use IMathAS\Engine\Http\JsonResponse;
 use IMathAS\Engine\QuestionService;
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/src/Engine/autoload.php';
 
 // Capture PHP warnings/notices/deprecations for this request (returned in the
 // response `diagnostics` field). Install before anything else runs.

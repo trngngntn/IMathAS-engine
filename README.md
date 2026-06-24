@@ -9,19 +9,25 @@ algorithmic questions and **grade** answers. No LMS, no database, no frontend.
 - **PHP 8.4** (provided by the container). Extensions:
   - `mbstring` — required (installed in the image; built against `libonig-dev`).
   - `pdo_sqlite` — required for the throwaway in-memory DB handle (bundled with PHP; not separately installed).
-  - The engine's `_()` localization calls are covered by a global pass-through shim (`src/Engine/functions.php`, loaded via Composer's files autoload), so the **gettext extension is not required**.
-- **unzip** — required OS package (installed in the image; used by Composer to unpack vendor archives).
-- **Composer** — for PSR-4 autoloading and dev tooling (provided in the container).
+  - `gettext` is **not** required — the engine's `_()` calls use a global shim (`src/Engine/functions.php`).
+- **No runtime Composer.** Engine classes load via `src/Engine/autoload.php` (a hand-written `require_once` list). Composer is used only in development to install PHPUnit.
 
-## Install & run
+## Run
+
+**Production** — code baked into the image; no Composer, no `vendor/`, no dev deps:
 
 ```bash
-docker compose up -d --build          # build php:8.4-fpm + nginx, start stack
-docker compose exec php composer install   # install autoload + dev deps (PHPUnit)
+docker compose up -d --build          # builds the prod image (Dockerfile) + nginx
 ```
 
-The service is then available at `http://localhost:8088`. Verify the live stack
-with the smoke script:
+**Development** — source bind-mounted, Composer present for tests:
+
+```bash
+docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml exec php composer install   # PHPUnit (dev only)
+```
+
+Either way the service is at `http://localhost:8088`. Verify with the smoke script:
 
 ```bash
 ./scripts/smoke.sh                    # asserts render, score, and 405 method guards
@@ -75,7 +81,9 @@ Both are present on every response.
 
 ## Tests
 
+Tests run in the dev stack (PHPUnit is a dev-only dependency):
+
 ```bash
-docker compose exec php vendor/bin/phpunit --testdox   # unit + integration
+docker compose -f docker-compose.dev.yml exec php vendor/bin/phpunit --testdox
 ./scripts/smoke.sh                                     # live endpoint smoke test
 ```

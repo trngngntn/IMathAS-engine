@@ -24,8 +24,8 @@ final class Bootstrap
 
         $root = dirname(__DIR__, 2);
 
-        // (The _() gettext shim is defined globally via Composer's files
-        // autoload — see src/Engine/functions.php — so it is always available.)
+        // (The _() gettext shim is defined globally by src/Engine/functions.php,
+        // loaded first by src/Engine/autoload.php, so it is always available.)
 
         // Web path roots used by the engine when building asset URLs in the
         // generated HTML. Empty = served at the web root (relative URLs).

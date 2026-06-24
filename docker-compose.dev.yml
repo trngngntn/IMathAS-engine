@@ -1,0 +1,21 @@
+# Development stack: source is bind-mounted into both containers so edits are
+# live, and the php image (Dockerfile.dev) includes Composer for running
+# `composer install` and the test suite in-container.
+#
+#   docker compose -f docker-compose.dev.yml up -d --build
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "8088:80"
+    volumes:
+      - ./:/var/www/html
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+  php:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./:/var/www/html
