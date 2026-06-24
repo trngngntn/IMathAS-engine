@@ -9,7 +9,8 @@ use PDO;
 /**
  * DB-less runtime initialization for the standalone question engine.
  * Replaces the init.php -> validate.php -> config.php chain with only what
- * the assessment engine reads at runtime. No MySQL, no auth, no LMS.
+ * the assessment engine reads at runtime. No MySQL, no auth, no LMS. This is
+ * also the engine's sole config surface — there is no separate config file.
  */
 final class Bootstrap
 {
@@ -23,7 +24,17 @@ final class Bootstrap
 
         $root = dirname(__DIR__, 2);
 
-        require_once $root . '/config.php';
+        // gettext provides _() as a built-in (default in the Docker image); this
+        // is the pass-through fallback if the extension is absent. No i18n
+        // catalogs are shipped.
+        if (!function_exists('_')) {
+            function _($s) { return $s; }
+        }
+
+        // Web path roots used by the engine when building asset URLs in the
+        // generated HTML. Empty = served at the web root (relative URLs).
+        $GLOBALS['imasroot'] = '';
+        $GLOBALS['staticroot'] = '';
 
         // Constants the engine references (MySQL 8+ word-boundary variants).
         if (!defined('MYSQL_LEFT_WRDBND')) {
@@ -55,8 +66,6 @@ final class Bootstrap
         $GLOBALS['hide-sronly'] = true;
 
         require_once $root . '/includes/sanitize.php';
-        // _() is provided as a built-in by the gettext extension, with a
-        // pass-through fallback defined in config.php. No i18n catalogs shipped.
 
         self::$initialized = true;
     }

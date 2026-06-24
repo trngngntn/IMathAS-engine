@@ -47,12 +47,14 @@ branch that `freshState()`/`defaultQuestionData()` keep unreachable.
 If you change the render/score path, verify no DB query is introduced (a GuardPDO
 that throws on `prepare`/`query`/`exec` is the way this was proven).
 
-`Bootstrap::init()` replaces the old `init.php → validate.php → config.php` chain:
-it defines the constants/globals the engine reads, sets `$_SESSION` render prefs
-(`graphdisp`/`drawentry` = 1, which also keep the DB branch unreachable), and
-includes `includes/sanitize.php`. No auth, no DB, no LMS. The engine's `_()`
-localization calls resolve to the gettext built-in (pass-through), with a
-fallback defined in `config.php`; no translation catalogs are shipped.
+`Bootstrap::init()` replaces the old `init.php → validate.php → config.php` chain
+and is the engine's **sole config surface** — there is no separate config file.
+It defines the constants/globals the engine reads (`imasroot`/`staticroot` = `''`,
+i.e. served at web root; `DBH`, `myrights`, `useeqnhelper`), sets `$_SESSION`
+render prefs (`graphdisp`/`drawentry` = 1, which also keep the DB branch
+unreachable), and includes `includes/sanitize.php`. No auth, no DB, no LMS. The
+engine's `_()` localization calls resolve to the gettext built-in (pass-through),
+with a fallback `_()` defined in `Bootstrap`; no translation catalogs are shipped.
 
 ## API contract
 
@@ -107,9 +109,11 @@ isolated scope).
   consumer renders them (and owns graph accessibility). No `gd` extension or
   `assessment/font/` needed. `filter/` is now just `filter.php` +
   `math/ASCIIMath2TeX.php`.
-- `error_reporting` in `config.php` suppresses legacy notice/deprecation/warning
-  noise so it never leaks into JSON responses — keep it.
-- Hook points the engine still honors (via `$CFG['hooks']`): `assess2/assess_standalone`,
+- `IMathAS\Engine\Diagnostics` (installed by the endpoints) sets `error_reporting(E_ALL)`
+  + `display_errors=0` and captures PHP notices/warnings/deprecations into the
+  response `diagnostics` field — they are surfaced, not suppressed or leaked.
+- Hook points the engine still honors (via `$GLOBALS['CFG']['hooks']`, unset by
+  default so all are no-ops): `assess2/assess_standalone`,
   `assess2/questions/score_engine`, `assess2/questions/question_html_generator`,
   and the choices/multiple-answer scorepart hooks.
 
