@@ -21,18 +21,27 @@ final class JsonResponse
         };
     }
 
-    public function success(array $data, array $errors = []): void
+    public function success(array $data, array $errors = [], array $diagnostics = []): void
     {
         ($this->emit)(200, (string) json_encode(
-            ['ok' => true, 'data' => $data, 'errors' => array_values($errors)],
+            [
+                'ok' => true,
+                'data' => $data,
+                'errors' => array_values($errors),
+                'diagnostics' => array_values($diagnostics),
+            ],
             JSON_PARTIAL_OUTPUT_ON_ERROR,
         ));
     }
 
-    public function failure(string $code, string $message, int $status): void
+    public function failure(string $code, string $message, int $status, array $diagnostics = []): void
     {
         ($this->emit)($status, (string) json_encode(
-            ['ok' => false, 'error' => ['code' => $code, 'message' => $message]],
+            [
+                'ok' => false,
+                'error' => ['code' => $code, 'message' => $message],
+                'diagnostics' => array_values($diagnostics),
+            ],
             JSON_PARTIAL_OUTPUT_ON_ERROR,
         ));
     }

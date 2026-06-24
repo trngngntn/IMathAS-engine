@@ -20,7 +20,23 @@ final class JsonResponseTest extends TestCase
 
         self::assertSame(200, $captured['status']);
         self::assertSame(
-            ['ok' => true, 'data' => ['x' => 1], 'errors' => []],
+            ['ok' => true, 'data' => ['x' => 1], 'errors' => [], 'diagnostics' => []],
+            json_decode($captured['body'], true),
+        );
+    }
+
+    public function test_success_includes_diagnostics(): void
+    {
+        $captured = [];
+        $response = new JsonResponse(static function (int $status, string $body) use (&$captured): void {
+            $captured = ['status' => $status, 'body' => $body];
+        });
+
+        $diag = [['level' => 'Warning', 'message' => 'Undefined array key "x"', 'file' => '/a.php', 'line' => 9, 'count' => 2]];
+        $response->success(['q' => 1], [], $diag);
+
+        self::assertSame(
+            ['ok' => true, 'data' => ['q' => 1], 'errors' => [], 'diagnostics' => $diag],
             json_decode($captured['body'], true),
         );
     }
@@ -36,7 +52,7 @@ final class JsonResponseTest extends TestCase
 
         self::assertSame(200, $captured['status']);
         self::assertSame(
-            ['ok' => true, 'data' => [], 'errors' => ['msg']],
+            ['ok' => true, 'data' => [], 'errors' => ['msg'], 'diagnostics' => []],
             json_decode($captured['body'], true),
         );
     }
@@ -52,7 +68,7 @@ final class JsonResponseTest extends TestCase
 
         self::assertSame(400, $captured['status']);
         self::assertSame(
-            ['ok' => false, 'error' => ['code' => 'invalid_request', 'message' => 'bad']],
+            ['ok' => false, 'error' => ['code' => 'invalid_request', 'message' => 'bad'], 'diagnostics' => []],
             json_decode($captured['body'], true),
         );
     }

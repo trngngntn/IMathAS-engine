@@ -49,17 +49,29 @@ Request body (JSON):
 - `seed` — optional (random if omitted). `solution` — optional. `stype` —
   `template` (default) or `code`.
 
-Response: `{ "ok": true, "data": { "seed", "question", "solution", "vars", "answers", "jsparams" }, "errors": [] }`
+Response: `{ "ok": true, "data": { "seed", "question", "solution", "vars", "answers", "jsparams" }, "errors": [], "diagnostics": [] }`
 
 ### `POST /scores.php` — grade
 
 Request body (form-encoded): `qtype`, `control`, `seed`, `answer` (required),
 optional `partsToScore` (JSON array of part indices).
 
-Response: `{ "ok": true, "data": { "scores", "raw", "answeights", "allAnswered" }, "errors": [] }`
+Response: `{ "ok": true, "data": { "scores", "raw", "answeights", "allAnswered" }, "errors": [], "diagnostics": [] }`
 
 Errors: `400` invalid request, `405` wrong method,
-`{ "ok": false, "error": { "code", "message" } }`.
+`{ "ok": false, "error": { "code", "message" }, "diagnostics": [] }`.
+
+### `errors` vs `diagnostics`
+
+Both are present on every response.
+
+- **`errors`** — engine *domain* errors: problems the engine itself reports
+  (bad question code, warnings raised while evaluating it, etc.), as messages.
+- **`diagnostics`** — PHP-level warnings/notices/deprecations captured during the
+  request *outside* the engine's own error handling (framework/plumbing noise),
+  deduplicated, each as `{ "level", "message", "file", "line", "count" }`. Empty
+  on a clean request. These were previously suppressed; they are now surfaced so
+  callers have full visibility.
 
 ## Tests
 

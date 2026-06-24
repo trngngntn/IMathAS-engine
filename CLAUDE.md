@@ -56,12 +56,20 @@ fallback defined in `config.php`; no translation catalogs are shipped.
 
 ## API contract
 
-Success → HTTP 200 `{ "ok": true, "data": {...}, "errors": [...] }` (engine domain
-errors, e.g. eval issues, ride along in `errors`). Bad input → 400, wrong method →
-405, both `{ "ok": false, "error": { "code", "message" } }`.
+Success → HTTP 200 `{ "ok": true, "data": {...}, "errors": [...], "diagnostics": [...] }`.
+Bad input → 400, wrong method → 405, both
+`{ "ok": false, "error": { "code", "message" }, "diagnostics": [...] }`.
 
 - **render** `data`: `{ seed, question, solution, vars, answers, jsparams }`
 - **score** `data`: `{ scores, raw, answeights, allAnswered }`
+- **`errors`** — engine domain errors (bad question code, warnings raised while
+  the engine evals it), as messages.
+- **`diagnostics`** — PHP warnings/notices/deprecations captured *outside* the
+  engine's own (scoped) eval error handler, via `IMathAS\Engine\Diagnostics`
+  (installed in the endpoints). Deduplicated `{ level, message, file, line, count }`.
+  This replaces the old blanket `error_reporting` suppression — noise is now
+  surfaced per request, never swallowed, and `display_errors` is forced off so it
+  can't leak into the JSON body.
 
 The author-supplied `control` contains the full setup **including** the `$answer`
 assignment. `vars` keys are `$`-prefixed (e.g. `{"$a":5}`). `stype` is `template`
