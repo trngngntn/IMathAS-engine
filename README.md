@@ -9,7 +9,6 @@ algorithmic questions and **grade** answers. No LMS, no database, no frontend.
 - **PHP 8.4** (provided by the container). Extensions:
   - `mbstring` — required (installed in the image; built against `libonig-dev`).
   - `pdo_sqlite` — required for the throwaway in-memory DB handle (bundled with PHP; not separately installed).
-  - `gettext` is **not** required — the engine's `_()` calls use a global shim (`src/Engine/functions.php`).
 - **No runtime Composer.** Engine classes load via `src/Engine/autoload.php` (a hand-written `require_once` list). Composer is used only in development to install PHPUnit.
 
 ## Run
