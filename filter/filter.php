@@ -1,7 +1,8 @@
 <?php
 	//IMathAS (c) 2006 David Lippman
-	//Filter file - converts ASCIIsvg and ASCIImath to image tags
-	//if needed
+	//Filter file - post-processes generated question HTML: normalizes embeds,
+	//expands [WA]/[EMBED]/[CDF] shortcodes, and (in fallback display modes)
+	//converts ASCIImath/ASCIIsvg to text or images.
 
 	//load in filters as needed
 	$filterdir = rtrim(dirname(__FILE__), '/\\');
@@ -172,47 +173,4 @@
 		}
 		return $str;
 	}
-	function forcefiltermath($str) {
-		$str = str_replace('\\`','&grave;',$str);
-		if (strpos($str,'`')!==FALSE) {
-			$str = preg_replace_callback('/`(.*?)`/s', 'mathfiltercallback', $str);
-		}
-		$str = str_replace('&grave;','`',$str);
-		return $str;
-	}
-	function mathentitycleanup($arr) {
-		$arr[1] = str_replace(array('<','>'),array('&lt;','&gt;'),$arr[1]);
-		return '`'.$arr[1].'`';
-	}
-	function printfilter($str, $stripbuttons = true) {
-		global $imasroot;
-		$str = preg_replace('/<canvas.*?\'(\w+\.png)\'.*?\/script>/','<div><img src="'.$imasroot.'/filter/graph/imgs/$1" alt="Graph"/></div>',$str);
-		$str = preg_replace('/<script.*?\/script>/','',$str);  //strip scripts
-        $str = preg_replace('/<input[^>]*Preview[^>]*>/','',$str); //strip preview buttons
-        $str = preg_replace('/<button[^>]*>Preview.*?<\/button>/','',$str); //strip preview buttons
-		if ($stripbuttons) {
-			$str = preg_replace('/<input[^>]*button[^>]*>/','',$str); //strip buttons
-			$str = preg_replace('/<button[^>]*>.*?<\/button>/','',$str); //strip buttons
-		}
-
-		if (isset($_POST['hidetxtboxes'])) {
-			$str = preg_replace('/<input[^>]*text[^>]*>/','',$str);
-			$str = preg_replace('/<input[^>]*(radio|checkbox)[^>]*>/','',$str);
-			$str = preg_replace('/<select.*?\/select>/s','',$str);
-		} else {
-			$str = preg_replace('/<input[^>]*text[^>]*>/','__________________',$str);
-			$str = preg_replace('/<input[^>]*(radio|checkbox)[^>]*>/','__',$str);
-			$str = preg_replace('/<select.*?\/select>/s','____',$str);
-		}
-		$str = preg_replace('/<table/','<table cellspacing="0"',$str);
-		$str = preg_replace('/`\s*([a-zA-Z])\s*`/','<i>$1</i>',$str);
-
-		$str = preg_replace('/<input[^>]*hidden[^>]*>/','',$str); //strip hidden fields
-		if (strpos($str,'`')!==FALSE) {
-			$str = preg_replace_callback('/`(.*?)`/s', 'mathentitycleanup', $str);
-		}
-		return $str;
-	}
-
-
 ?>
