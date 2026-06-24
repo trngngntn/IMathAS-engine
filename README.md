@@ -10,7 +10,6 @@ algorithmic questions and **grade** answers. No LMS, no database, no frontend.
   - `mbstring` — required (installed in the image).
   - `pdo_sqlite` — required for the throwaway in-memory DB handle (bundled with PHP).
   - `gettext` — recommended (installed in the image; provides the built-in `_()`). The engine ships no translation catalogs; `config.php` defines a pass-through `_()` fallback if the extension is absent.
-  - `gd` — optional, only for server-side graph-image rendering paths.
 - **unzip** — required OS package (installed in the image; used by Composer to unpack vendor archives).
 - **Composer** — for PSR-4 autoloading and dev tooling (provided in the container).
 

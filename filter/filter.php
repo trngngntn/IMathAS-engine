@@ -10,11 +10,8 @@
 		require_once "$filterdir/math/ASCIIMath2TeX.php";
 		$AMT = new AMtoTeX;
 	}
-	if ((isset($_SESSION['graphdisp']) && $_SESSION['graphdisp']==2) || isset($loadgraphfilter)) { //use image fallback for graphs
-		require_once "$filterdir/graph/asciisvgimg.php";
-		$AS = new AStoIMG;
-		require_once "$filterdir/../includes/filehandler.php";
-	}
+	// Server-side graph rasterization (asciisvgimg) removed: this engine renders
+	// graphs client-side (graphdisp=1) and never uses the image fallback.
 	if ((!isset($_SESSION['graphdisp']) || $_SESSION['graphdisp']==0)) {
 		require_once "$filterdir/graph/sscrtotext.php";
 	}
@@ -44,68 +41,6 @@
 		if (trim($arr[2])=='') {return '';}
 		return '['.shortscriptToText($arr[2]).']';
 	}
-	function svgfiltersscrcallback($arr) {
-		global $filterdir, $AS, $imasroot;
-		if (trim($arr[2])=='') {return $arr[0];}
-
-		if (!isset($AS) || $AS===null) {
-			require_once "$filterdir/graph/asciisvgimg.php";
-			$AS = new AStoIMG;
-		}
-
-		if (strpos($arr[0],'style')!==FALSE) {
-			$sty = preg_replace('/.*style\s*=\s*(.)(.+?)\1.*/',"$2",$arr[0]);
-		} else {
-			$sty = "vertical-align: middle;";
-		}
-		$fn = md5($arr[2]);
-		if (!doesfileexist('graphimg', $fn.'.png')) {
-			$AS->AStoIMG(300,300);
-			$AS->processShortScript($arr[2]);
-			$AS->outputimage($filterdir.'/graph/imgs/'.$fn.'.png');
-			$gurl = relocategraphfileifneeded($filterdir.'/graph/imgs/'.$fn.'.png', $fn.'.png');
-		} else {
-			$gurl = getgraphfileurl($fn.'.png');
-		}
-		return ('<img src="'.$gurl.'" style="'.$sty.'" alt="Graphs"/>');
-	}
-	function svgfilterscriptcallback($arr) {
-		global $filterdir, $AS, $imasroot;
-		if (trim($arr[2])=='') {return $arr[0];}
-
-		if (!isset($AS) || $AS===null) {
-			require_once "$filterdir/graph/asciisvgimg.php";
-			$AS = new AStoIMG;
-		}
-
-		$w = preg_replace('/.*\bwidth\s*=\s*.?(\d+).*/',"$1",$arr[0]);
-		$h = preg_replace('/.*\bheight\s*=\s*.?(\d+).*/',"$1",$arr[0]);
-
-		if ($w === $arr[0]) {
-			$w = 200;
-		}
-		if ($h === $arr[0]) {
-			$h = 200;
-		}
-
-		if (strpos($arr[0],'style')!==FALSE) {
-			$sty = preg_replace('/.*style\s*=\s*(.)(.+?)\1.*/',"$2",$arr[0]);
-		} else {
-			$sty = "vertical-align: middle;";
-		}
-		$fn = md5($arr[2].$w.$h);
-
-		if (!doesfileexist('graphimg', $fn.'.png')) {
-			$AS->AStoIMG($w+0,$h+0);
-			$AS->processScript($arr[2]);
-			$AS->outputimage($filterdir.'/graph/imgs/'.$fn.'.png');
-			$gurl = relocategraphfileifneeded($filterdir.'/graph/imgs/'.$fn.'.png', $fn.'.png');
-		} else {
-			$gurl = getgraphfileurl($fn.'.png');
-		}
-		return ('<img src="'.$gurl.'" style="'.$sty.'" alt="Graphs"/>');
-	}
-
 	function filter($str) {
 		global $userfullname,$urlmode,$imasroot;
 		if ($urlmode == 'https://') {
@@ -131,15 +66,8 @@
 			}
 			$str = str_replace('&grave;','`',$str);
 		}
-		if ($_SESSION['graphdisp']==2) {
-			if (strpos($str,'embed')!==FALSE) {
-				$str = preg_replace_callback('/<\s*embed[^>]*?sscr=(.)(.+?)\1.*?>/s','svgfiltersscrcallback',$str);
-				$str = preg_replace_callback('/<\s*embed[^>]*?script=(.)(.+?)\1.*?>/s','svgfilterscriptcallback',$str);
-			}
-		} else {
-			$str = str_replace("<embed type='image/svg+xml'","<embed type='image/svg+xml' wmode=\"transparent\" ",$str);
-			$str = str_replace("src=\"$imasroot/javascript/d.svg\"","",$str);
-		}
+		$str = str_replace("<embed type='image/svg+xml'","<embed type='image/svg+xml' wmode=\"transparent\" ",$str);
+		$str = str_replace("src=\"$imasroot/javascript/d.svg\"","",$str);
 
 		if (strpos($str,'[WA')!==false) {
 			$search = '/\[WA:\s*(.+?)\s*\]/';
@@ -244,23 +172,6 @@
 		}
 		return $str;
 	}
-	function filtergraph($str) {
-		if ($_SESSION['graphdisp']==2) {
-			if (strpos($str,'embed')!==FALSE) {
-				$str = preg_replace_callback('/<\s*embed.*?sscr=(.)(.+?)\1.*?>/','svgfiltersscrcallback',$str);
-				$str = preg_replace_callback('/<\s*embed.*?script=(.)(.+?)\1.*?>/','svgfilterscriptcallback',$str);
-			}
-		}
-		return $str;
-	}
-	function forcefiltergraph($str) {
-		global $filterdir;
-		if (strpos($str,'embed')!==FALSE) {
-			$str = preg_replace_callback('/<\s*embed.*?sscr=(.)(.+?)\1.*?>/','svgfiltersscrcallback',$str);
-			$str = preg_replace_callback('/<\s*embed.*?script=(.)(.+?)\1.*?>/','svgfilterscriptcallback',$str);
-		}
-		return $str;
-	}
 	function forcefiltermath($str) {
 		$str = str_replace('\\`','&grave;',$str);
 		if (strpos($str,'`')!==FALSE) {
@@ -268,15 +179,6 @@
 		}
 		$str = str_replace('&grave;','`',$str);
 		return $str;
-	}
-	function getgraphfilename($str) {
-		$str = forcefiltergraph($str);
-		preg_match('/\/graph\/imgs\/(\w+\.png)/',$str,$matches);
-		return ($matches[1]);
-	}
-	function getgraphfilenames($str) {
-		preg_match_all('/\/graph\/imgs\/(\w+\.png)/',$str,$matches,PREG_PATTERN_ORDER);
-		return ($matches[1]);
 	}
 	function mathentitycleanup($arr) {
 		$arr[1] = str_replace(array('<','>'),array('&lt;','&gt;'),$arr[1]);

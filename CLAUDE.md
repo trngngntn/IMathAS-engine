@@ -80,8 +80,13 @@ isolated scope).
   verbatim from upstream and intentionally kept (preview markup is irrelevant to
   an API consumer).
 - `includes/` was pruned to only what the engine transitively needs: `sanitize`,
-  `htmLawed`, `filehandler` (→ `S3`, `svg-sanitizer/`), `OAuth`, `Rand`. Adding a
-  new engine path that needs another `includes/` file means restoring it.
+  `htmLawed`, `filehandler` (→ `S3`, `svg-sanitizer/`), `Rand`. Adding a new engine
+  path that needs another `includes/` file means restoring it.
+- **Graphs render client-side only.** The server-side SVG→PNG rasterizer
+  (`filter/graph/asciisvgimg.php`) and its `graphdisp==2` code paths in
+  `filter/filter.php` were removed. `showplot`/`showasciisvg` emit client-side
+  `<embed>`/draw commands (graphdisp=1); the consumer renders them. No `gd`
+  extension or `assessment/font/` needed.
 - `error_reporting` in `config.php` suppresses legacy notice/deprecation/warning
   noise so it never leaks into JSON responses — keep it.
 - Hook points the engine still honors (via `$CFG['hooks']`): `assess2/assess_standalone`,
