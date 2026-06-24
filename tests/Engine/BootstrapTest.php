@@ -15,7 +15,7 @@ final class BootstrapTest extends TestCase
         Bootstrap::init();
 
         self::assertInstanceOf(PDO::class, $GLOBALS['DBH']);
-        self::assertSame(0, $GLOBALS['myrights']);
+        self::assertSame(100, $GLOBALS['myrights']);
         self::assertTrue(defined('MYSQL_LEFT_WRDBND'));
         self::assertTrue(defined('MYSQL_RIGHT_WRDBND'));
         self::assertSame(1, $_SESSION['userprefs']['graphdisp']);

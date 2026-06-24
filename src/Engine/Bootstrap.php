@@ -35,6 +35,10 @@ final class Bootstrap
         // generated HTML. Empty = served at the web root (relative URLs).
         $GLOBALS['imasroot'] = '';
         $GLOBALS['staticroot'] = '';
+        // LMS site globals the engine occasionally references when building
+        // links (e.g. [EMBED]); empty/no-course in this standalone context.
+        $GLOBALS['basesiteurl'] = '';
+        $GLOBALS['cid'] = '';
 
         // Constants the engine references (MySQL 8+ word-boundary variants).
         if (!defined('MYSQL_LEFT_WRDBND')) {
@@ -53,16 +57,23 @@ final class Bootstrap
             $GLOBALS['DBH'] = new PDO('sqlite::memory:');
         }
 
-        // Guest rights; no authenticated user.
-        $GLOBALS['myrights'] = 0;
+        // The API caller is the system, treated as a site admin (100). This
+        // gives author-level answer handling (`> 10`) and full error visibility
+        // (`=== 100` → $showallerrors). The internal context the engine assumes
+        // under $showallerrors is provided below / in QuestionService so it does
+        // not emit spurious "undefined key" warnings into `errors`.
+        $GLOBALS['myrights'] = 100;
 
         // The engine reads $useeqnhelper to expose the equation helper in jsparams.
         $GLOBALS['useeqnhelper'] = 1;
 
-        // Render preferences normally set by a logged-in session.
+        // Render preferences normally set by a logged-in session. mathdisp != 2
+        // keeps math client-side (2 = server image fallback).
         $_SESSION['userprefs']['graphdisp'] = 1;
         $_SESSION['userprefs']['drawentry'] = 1;
+        $_SESSION['userprefs']['mathdisp'] = 0;
         $_SESSION['graphdisp'] = 1;
+        $_SESSION['mathdisp'] = 0;
         $GLOBALS['hide-sronly'] = true;
 
         require_once $root . '/includes/sanitize.php';

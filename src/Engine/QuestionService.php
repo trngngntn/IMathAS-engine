@@ -165,13 +165,17 @@ final class QuestionService
             'answer' => '',
             'solution' => '',
             'extref' => '',
-            'solutionopts' => 6,
+            // 4 = render the detailed solution inline. (Bit 2/value 2 would add
+            // a "Written Example" popup link to the removed showsoln.php; omit
+            // it. Our `solution` field comes from getSolutionContent regardless.)
+            'solutionopts' => 4,
             'deleted' => 0,
             'hasimg' => 0,
             'license' => 1,
             'isrand' => 1,
             'a11yalttype' => 0,
             'a11yalt' => 0,
+            'lastmoddate' => 0,
         ];
     }
 }
