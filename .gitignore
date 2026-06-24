@@ -1,8 +1,5 @@
 /vendor
-/tests/_support/_generated
-/tests/_output/
-/c3.php
+/.superpowers
 *.php~
 *.js~
-mathjax-b
-HTMLPurifier
+.phpunit.result.cache

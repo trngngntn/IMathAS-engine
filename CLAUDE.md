@@ -50,7 +50,9 @@ that throws on `prepare`/`query`/`exec` is the way this was proven).
 `Bootstrap::init()` replaces the old `init.php → validate.php → config.php` chain:
 it defines the constants/globals the engine reads, sets `$_SESSION` render prefs
 (`graphdisp`/`drawentry` = 1, which also keep the DB branch unreachable), and
-includes `includes/sanitize.php` + `i18n/i18n.php`. No auth, no DB, no LMS.
+includes `includes/sanitize.php`. No auth, no DB, no LMS. The engine's `_()`
+localization calls resolve to the gettext built-in (pass-through), with a
+fallback defined in `config.php`; no translation catalogs are shipped.
 
 ## API contract
 

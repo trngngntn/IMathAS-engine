@@ -55,7 +55,8 @@ final class Bootstrap
         $GLOBALS['hide-sronly'] = true;
 
         require_once $root . '/includes/sanitize.php';
-        require_once $root . '/i18n/i18n.php';
+        // _() is provided as a built-in by the gettext extension, with a
+        // pass-through fallback defined in config.php. No i18n catalogs shipped.
 
         self::$initialized = true;
     }
