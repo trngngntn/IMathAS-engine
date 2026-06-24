@@ -32,7 +32,7 @@ Thin endpoints → service layer → legacy engine.
 
 | Layer | Files |
 |-------|-------|
-| Endpoints | `problems.php` (render, **JSON** body), `scores.php` (grade, **form-encoded** body) |
+| Endpoints | `question.php` → `POST /question` (render, **JSON** body), `score.php` → `POST /score` (grade, **form-encoded** body) |
 | Service (`IMathAS\Engine\`, PSR-4 → `src/Engine/`) | `Bootstrap` (DB-less init), `QuestionService` (wraps `AssessStandalone`), `Dto/*` (readonly DTOs + `Stype` enum), `Http/{JsonRequest,JsonResponse}`, `EngineException` |
 | Engine (kept as-is) | `assess2/AssessStandalone.php`, `assess2/questions/*`, `assessment/{macros,interpret5,mathparser,mathphp2}.php` + `assessment/macros/*`, `assessment/libs/*` (loaded dynamically via `loadlibrary`) |
 

@@ -29,7 +29,7 @@ with the smoke script:
 
 ## Endpoints
 
-### `POST /problems.php` — render
+### `POST /question` — render
 
 Request body (JSON):
 
@@ -51,7 +51,7 @@ Request body (JSON):
 
 Response: `{ "ok": true, "data": { "seed", "question", "solution", "vars", "answers", "jsparams" }, "errors": [], "diagnostics": [] }`
 
-### `POST /scores.php` — grade
+### `POST /score` — grade
 
 Request body (form-encoded): `qtype`, `control`, `seed`, `answer` (required),
 optional `partsToScore` (JSON array of part indices).

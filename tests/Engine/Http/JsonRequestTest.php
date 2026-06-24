@@ -17,7 +17,7 @@ final class JsonRequestTest extends TestCase
             JsonRequest::requirePost('GET');
             self::fail('Expected EngineException for GET');
         } catch (EngineException $e) {
-            // errorCode drives the 405 status mapping in problems.php.
+            // errorCode drives the 405 status mapping in the endpoints.
             self::assertSame('method_not_allowed', $e->errorCode);
             self::assertSame('Method Not Allowed', $e->getMessage());
         }
