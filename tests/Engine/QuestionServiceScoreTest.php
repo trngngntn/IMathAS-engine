@@ -44,6 +44,24 @@ final class QuestionServiceScoreTest extends TestCase
         self::assertTrue($result->allAnswered);
     }
 
+    public function test_score_restores_output_buffer_level(): void
+    {
+        // ScoreEngine drains the output buffers it (and eval'd question code)
+        // opens, down to — but not below — the level it found. If it over- or
+        // under-drained, the surrounding output buffering would break and stray
+        // output could leak into the JSON response. Level must be unchanged.
+        $before = ob_get_level();
+
+        $this->service()->score(ScoreRequest::fromArray([
+            'qtype' => 'number',
+            'control' => "\$a = 5\n\$answer = \$a",
+            'seed' => 1234,
+            'answer' => '5',
+        ]));
+
+        self::assertSame($before, ob_get_level());
+    }
+
     public function test_engine_errors_ride_along_in_result(): void
     {
         // Control that throws during eval (call to an undefined function). The

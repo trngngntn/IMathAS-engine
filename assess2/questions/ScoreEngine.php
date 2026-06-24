@@ -65,6 +65,7 @@ class ScoreEngine
     private $randWrapper;
     private $userRights;
     private $errors = array(); // Populated by this class' error handlers.
+    private $score_ob_level = 0;
 
     public function __construct(PDO $dbh, Rand $randWrapper)
     {
@@ -88,6 +89,7 @@ class ScoreEngine
         $GLOBALS['curqsetid'] = $scoreQuestionParams->getDbQuestionSetId();
         set_error_handler(array($this, 'evalErrorHandler'));
         set_exception_handler(array($this, 'evalExceptionHandler'));
+        $this->score_ob_level = ob_get_level();
         ob_start();
 
         $this->randWrapper->srand($scoreQuestionParams->getQuestionSeed());
@@ -345,7 +347,21 @@ class ScoreEngine
         restore_error_handler();
         restore_exception_handler();
         unset($GLOBALS['curqsetid']);
-        $errors = ob_get_clean();
+
+        // Drain every output buffer the engine (and any eval'd question code
+        // that opened unbalanced buffers) pushed above the level we captured
+        // before ob_start(), back down to — but not below — that level, so
+        // stray output is captured into $errors instead of leaking into the
+        // JSON response. Uses '>' (not '>=') so the caller's pre-existing
+        // buffers (e.g. PHP's default output buffer) are left intact.
+        $errors = '';
+        while (ob_get_level() > $this->score_ob_level) {
+            $piece = ob_get_clean();
+            if ($piece !== '') {
+                $errors .= $piece;
+            }
+        }
+
         if ($errors != '') {
           $this->addError($errors);
         }
