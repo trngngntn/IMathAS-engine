@@ -90,11 +90,15 @@ isolated scope).
   only when grading an essay answer; filehandler/S3 only on file upload.) A `file` or
   `essay` qtype now returns a clean "Unknown answer type" engine error (HTTP 200, in
   `errors`), not a fatal. Consumers handle any rich-text/file input externally.
-- **Graphs render client-side only.** The server-side SVG→PNG rasterizer
-  (`filter/graph/asciisvgimg.php`) and its `graphdisp==2` code paths in
-  `filter/filter.php` were removed. `showplot`/`showasciisvg` emit client-side
-  `<embed>`/draw commands (graphdisp=1); the consumer renders them. No `gd`
-  extension or `assessment/font/` needed.
+- **Graphs render client-side only.** `graphdisp` is hardcoded to 1, so both
+  server-side graph paths were removed from `filter/` entirely (the whole
+  `filter/graph/` dir is gone): the SVG→PNG rasterizer (`asciisvgimg.php`,
+  `graphdisp==2`) and the text-alternative fallback (`sscrtotext.php`,
+  `graphdisp==0`), along with their code paths in `filter/filter.php`.
+  `showplot`/`showasciisvg` emit client-side `<embed>`/draw commands; the
+  consumer renders them (and owns graph accessibility). No `gd` extension or
+  `assessment/font/` needed. `filter/` is now just `filter.php` +
+  `math/ASCIIMath2TeX.php`.
 - `error_reporting` in `config.php` suppresses legacy notice/deprecation/warning
   noise so it never leaks into JSON responses — keep it.
 - Hook points the engine still honors (via `$CFG['hooks']`): `assess2/assess_standalone`,

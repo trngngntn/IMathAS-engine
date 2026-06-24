@@ -6,16 +6,13 @@
 
 	//load in filters as needed
 	$filterdir = rtrim(dirname(__FILE__), '/\\');
-	//require_once "$filterdir/simplelti/simplelti.php";
 	if ((isset($_SESSION['mathdisp']) && $_SESSION['mathdisp']==2 ) || isset($loadmathfilter)) { //use image fallback for math
 		require_once "$filterdir/math/ASCIIMath2TeX.php";
 		$AMT = new AMtoTeX;
 	}
-	// Server-side graph rasterization (asciisvgimg) removed: this engine renders
-	// graphs client-side (graphdisp=1) and never uses the image fallback.
-	if ((!isset($_SESSION['graphdisp']) || $_SESSION['graphdisp']==0)) {
-		require_once "$filterdir/graph/sscrtotext.php";
-	}
+	// This engine renders graphs client-side (graphdisp=1). The server-side
+	// rasterizer (asciisvgimg) and the text-alternative fallback (sscrtotext,
+	// graphdisp=0) have both been removed.
 	function mathfiltercallback($arr) {
 		global $AMT,$mathimgurl,$coursetheme;
 		//$arr[1] = str_replace(array('&ne;','&quot;','&lt;','&gt;','&le;','&ge;'),array('ne','"','lt','gt','le','ge'),$arr[1]);
@@ -38,10 +35,6 @@
 			}
 		}
 	}
-	function svgsscrtotextcallback($arr) {
-		if (trim($arr[2])=='') {return '';}
-		return '['.shortscriptToText($arr[2]).']';
-	}
 	function filter($str) {
 		global $userfullname,$urlmode,$imasroot;
 		if ($urlmode == 'https://') {
@@ -52,14 +45,6 @@
 			$str = str_replace("\n","<br/>\n",$str);
 		}
 		$str = str_replace('alt="decorative"', 'alt="" role="presentation"', $str);
-		if ($_SESSION['graphdisp']==0) {
-			if (strpos($str,'embed')!==FALSE) {
-				$str = preg_replace('/<embed[^>]*alt="([^"]*)"[^>]*>/',"[$1]", $str);
-				//$str = preg_replace('/<embed[^>]*sscr[^>]*>/',"[Graph with no description]", $str);
-				$str = preg_replace_callback('/<\s*embed[^>]*?sscr=(.)(.+?)\1.*?>/s','svgsscrtotextcallback',$str);
-			}
-            $str = preg_replace('/<canvas[^>]*aria-label="([^"]*)"[^>]*>.*?<\/canvas>/',"[$1]", $str);
-		}
 		if ($_SESSION['mathdisp']==2) {
 			$str = str_replace('\\`','&grave;',$str);
 			if (strpos($str,'`')!==FALSE) {
