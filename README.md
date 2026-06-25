@@ -50,8 +50,17 @@ Response: `{ "ok": true, "data": { "seed", "question", "solution", "vars", "answ
 
 ### `POST /score` — grade
 
-Request body (form-encoded): `qtype`, `control`, `seed`, `answer` (required),
+Request body (JSON): `qtype`, `control`, `seed`, `answer` (required),
 optional `partsToScore` (JSON array of part indices).
+
+```json
+{
+  "qtype": "number",
+  "control": "$a = 5\n$b = 7\n$answer = $a + $b",
+  "seed": 1234,
+  "answer": "12"
+}
+```
 
 Response: `{ "ok": true, "data": { "scores", "raw", "answeights", "allAnswered" }, "errors": [], "diagnostics": [] }`
 

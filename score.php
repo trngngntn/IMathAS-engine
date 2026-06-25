@@ -23,7 +23,8 @@ $response = new JsonResponse();
 
 try {
     JsonRequest::requirePost($_SERVER['REQUEST_METHOD'] ?? 'GET');
-    $result = (new QuestionService($GLOBALS['DBH']))->score(ScoreRequest::fromArray($_POST));
+    $payload = JsonRequest::parseJsonBody(file_get_contents('php://input') ?: '');
+    $result = (new QuestionService($GLOBALS['DBH']))->score(ScoreRequest::fromArray($payload));
     $response->success($result->toArray(), $result->errors, Diagnostics::drain());
 } catch (EngineException $e) {
     $status = $e->errorCode === 'method_not_allowed' ? 405 : 400;

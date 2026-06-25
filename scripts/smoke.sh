@@ -12,12 +12,8 @@ echo
 
 echo "== score correct (/score) =="
 SCORE=$(curl -fsS -X POST "$BASE/score" \
-  --data-urlencode 'qtype=number' \
-  --data-urlencode 'control=$a = 5
-$b = 7
-$answer = $a + $b' \
-  --data-urlencode 'seed=1234' \
-  --data-urlencode 'answer=12')
+  -H 'Content-Type: application/json' \
+  -d '{"qtype":"number","control":"$a = 5\n$b = 7\n$answer = $a + $b","seed":1234,"answer":"12"}')
 echo "$SCORE"
 echo "$SCORE" | grep -q '"scores":\[1\]' || { echo "ERROR: score did not return \"scores\":[1]" >&2; exit 1; }
 echo
