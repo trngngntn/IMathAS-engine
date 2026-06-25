@@ -46,7 +46,7 @@ class FunctionExpressionScorePart implements ScorePart
  
         $ansformats = array_map('trim',explode(',',$answerformat));
 
-        if ($multi) { $qn = ($qn+1)*1000+$partnum; }
+        if ($multi) { $qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum); }
 
         $givenans = normalizemathunicode(trim($givenans, " \n\r\t\v\x00,"));
 

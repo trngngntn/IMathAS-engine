@@ -50,7 +50,7 @@ class CalculatedIntervalAnswerBox implements AnswerBox
         $ansformats = array_map('trim', explode(',', $answerformat));
 
         if (empty($answerboxsize)) {$answerboxsize = 20;}
-        if ($multi) {$qn = ($qn + 1) * 1000 + $partnum;}
+        if ($multi) {$qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum);}
         if (!empty($ansprompt) && !in_array('nosoln', $ansformats) && !in_array('nosolninf', $ansformats)) {
             $out .= $ansprompt;
         }

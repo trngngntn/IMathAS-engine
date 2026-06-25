@@ -37,7 +37,7 @@ class MoleculeScorePart implements ScorePart
             ${$optionkey} = getOptionVal($options, $optionkey, $multi, $partnum);
         }
 
-        if ($multi) { $qn = ($qn+1)*1000+$partnum; }
+        if ($multi) { $qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum); }
 
         $scorePartResult->setLastAnswerAsGiven($givenans);
 

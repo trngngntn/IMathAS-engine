@@ -56,7 +56,7 @@ class ChoicesAnswerBox implements AnswerBox
             $questions = array();
         }
 
-        if ($multi) {$qn = ($qn + 1) * 1000 + $partnum;}
+        if ($multi) {$qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum);}
         if ($noshuffle == "last" && count($questions)>0) {
             $randkeys = (array) $RND->array_rand(array_slice($questions, 0, count($questions) - 1), count($questions) - 1);
             $RND->shuffle($randkeys);

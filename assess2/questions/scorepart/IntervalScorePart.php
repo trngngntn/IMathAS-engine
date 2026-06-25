@@ -42,7 +42,7 @@ class IntervalScorePart implements ScorePart
 
         if (empty($variables)) { $variables = 'x';}
 
-        if ($multi) { $qn = ($qn+1)*1000+$partnum; }
+        if ($multi) { $qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum); }
 
         $ansformats = array_map('trim',explode(',',$answerformat));
 

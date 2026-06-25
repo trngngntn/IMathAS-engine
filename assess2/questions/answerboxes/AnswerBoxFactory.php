@@ -2,6 +2,8 @@
 
 namespace IMathAS\assess2\questions\answerboxes;
 
+require_once __DIR__ . '/../PartRef.php';
+
 require_once __DIR__ . '/CalculatedAnswerBox.php';
 require_once __DIR__ . '/CalculatedComplexAnswerBox.php';
 require_once __DIR__ . '/CalculatedIntervalAnswerBox.php';

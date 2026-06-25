@@ -47,7 +47,7 @@ class MatchingScorePart implements ScorePart
             $scorePartResult->setRawScore(0);
             return $scorePartResult;
         }
-        if ($multi) { $qn = ($qn+1)*1000+$partnum; }
+        if ($multi) { $qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum); }
         $score = 1.0;
         $deduct = 1.0/count($questions);
         if ($noshuffle=="questions" || $noshuffle=='all') {

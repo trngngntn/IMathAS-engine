@@ -40,7 +40,7 @@ class StringScorePart implements ScorePart
         foreach ($optionkeys as $optionkey) {
             ${$optionkey} = getOptionVal($options, $optionkey, $multi, $partnum, 2);
         }
-        if ($multi) { $qn = ($qn+1)*1000+$partnum; }
+        if ($multi) { $qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum); }
         $givenans = normalizemathunicode($givenans);
         
         if ($answerformat=='list') {

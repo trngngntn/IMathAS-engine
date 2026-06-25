@@ -2,6 +2,8 @@
 
 namespace IMathAS\assess2\questions;
 
+require_once __DIR__ . '/PartRef.php';
+
 require_once __DIR__ . '/answerboxes/AnswerBoxParams.php';
 require_once __DIR__ . '/answerboxes/AnswerBoxFactory.php';
 require_once __DIR__ . '/models/Question.php';
@@ -622,7 +624,7 @@ class QuestionHtmlGenerator
                 $answerbox[$atIdx] = $answerBoxGenerator->getAnswerBox();
                 $answerbox[$atIdx] .= '<span class="afterquestion"></span>';
                 $entryTips[$atIdx] = $answerBoxGenerator->getEntryTip();
-                $qnRef = ($this->questionParams->getDisplayQuestionNumber()+1)*1000 + $atIdx;
+                $qnRef = PartRef::pack($this->questionParams->getDisplayQuestionNumber(), $atIdx);
                 $jsParams[$qnRef] = $answerBoxGenerator->getJsParams();
                 $jsParams[$qnRef]['qtype'] = $anstype;
                 $displayedAnswersForParts[$atIdx] = $answerBoxGenerator->getCorrectAnswerForPart();
@@ -963,7 +965,7 @@ class QuestionHtmlGenerator
               $thisGroupDone = !empty($seqGroupDone[$k]);
               preg_match_all('/<(input|select|textarea)[^>]*name="?qn(\d+)/', $seqPart, $matches);
               foreach ($matches[2] as $qnrefnum) {
-                $pn = $qnrefnum % 1000;
+                $pn = PartRef::partOf($qnrefnum);
                 if (!$lastGroupDone) { // not ready for it - unset stuff
                   unset($jsParams[$qnrefnum]);
                   unset($answerbox[$pn]);

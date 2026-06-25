@@ -53,7 +53,7 @@ class MatchingAnswerBox implements AnswerBox
         $questions = getOptionVal($options, 'questions', $multi, $partnum, 2);
         $answers = getOptionVal($options, 'answers', $multi, $partnum, 2);
 
-        if ($multi) {$qn = ($qn + 1) * 1000 + $partnum;}
+        if ($multi) {$qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum);}
 
         if (!is_array($questions)) {
             echo _('Eeek!  $questions is not defined or needs to be an array');

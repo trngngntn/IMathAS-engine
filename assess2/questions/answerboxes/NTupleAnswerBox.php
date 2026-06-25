@@ -49,7 +49,7 @@ class NTupleAnswerBox implements AnswerBox
         $ansformats = array_map('trim', explode(',', $answerformat));
 
         if (empty($answerboxsize)) {$answerboxsize = 20;}
-        if ($multi) {$qn = ($qn + 1) * 1000 + $partnum;}
+        if ($multi) {$qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum);}
 
         $hintdim = 2;
         if (in_array('dimensionhint', $ansformats)) {

@@ -45,7 +45,7 @@ class MoleculeAnswerBox implements AnswerBox
         }
         $questions = getOptionVal($options, 'questions', $multi, $partnum, 2);
 
-        if ($multi) {$qn = ($qn + 1) * 1000 + $partnum;}
+        if ($multi) {$qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum);}
 
         $forcea11y = false;
         if ($la !== '') {

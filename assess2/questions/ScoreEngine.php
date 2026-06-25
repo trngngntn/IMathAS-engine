@@ -2,6 +2,8 @@
 
 namespace IMathAS\assess2\questions;
 
+require_once __DIR__ . '/PartRef.php';
+
 require_once __DIR__ . '/ErrorHandler.php';
 require_once __DIR__ . '/QuestionHtmlGenerator.php';
 require_once __DIR__ . '/models/ScoreQuestionParams.php';
@@ -460,8 +462,8 @@ class ScoreEngine
             $prefix = substr($postk, 0, 2);
             if ($prefix == 'qn') { // TODO: handle "qs" from nosolninf
                 $partnum = intval(substr($postk, 2));
-                if (floor($partnum / 1000) == $thisq) {
-                    $kidx = round($partnum - 1000 * floor($partnum / 1000));
+                if (PartRef::belongsTo($partnum, $thisq - 1)) {
+                    $kidx = PartRef::partOf($partnum);
                     if (is_array($parts_to_score) && empty($parts_to_score[$kidx])) {
                         continue; // don't process if not in to-score list
                     }
@@ -719,7 +721,7 @@ class ScoreEngine
         $accpts = 0;
         $answeightTot = array_sum($answeights);
         foreach ($anstypes as $partnum => $anstype) {
-            $inputReferenceNumber = ($qnidx + 1) * 1000 + $partnum;
+            $inputReferenceNumber = PartRef::pack($qnidx, $partnum);
 
             $scoreQuestionParams
                 ->setAnswerType($anstype)

@@ -2,6 +2,8 @@
 
 namespace IMathAS\assess2\questions\scorepart;
 
+require_once __DIR__ . '/../PartRef.php';
+
 require_once __DIR__ . '/NumMatrixScorePart.php';
 require_once __DIR__ . '/ComplexMatrixScorePart.php';
 require_once __DIR__ . '/AlgebraicMatrixScorePart.php';

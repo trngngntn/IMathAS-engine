@@ -60,7 +60,7 @@ class DrawingAnswerBox implements AnswerBox
             $snapparts = array_map('evalbasic', $snapparts);
             $snaptogrid = implode(':', $snapparts);
         }
-        if ($multi) {$qn = ($qn + 1) * 1000 + $partnum;}
+        if ($multi) {$qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum);}
         $imgborder = 5;
 
         if (empty($answerformat)) {

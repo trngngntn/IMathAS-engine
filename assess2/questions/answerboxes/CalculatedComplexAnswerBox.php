@@ -60,7 +60,7 @@ class CalculatedComplexAnswerBox implements AnswerBox
         }
 
         if (empty($answerboxsize)) { $answerboxsize = 20;}
-        if ($multi) { $qn = ($qn+1)*1000+$partnum; }
+        if ($multi) { $qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum); }
 
         $la = explode('$#$',$la);
         $la = $la[0];

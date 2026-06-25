@@ -52,7 +52,7 @@ class CalculatedMatrixAnswerBox implements AnswerBox
         $ansformats = array_map('trim', explode(',', $answerformat));
         $dispformats = array_map('trim', explode(',', $displayformat));
 
-        if ($multi) {$qn = ($qn + 1) * 1000 + $partnum;}
+        if ($multi) {$qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum);}
 
         if (!empty($ansprompt) && !in_array('nosoln', $ansformats) && !in_array('nosolninf', $ansformats)) {
             $out .= $ansprompt;
@@ -139,7 +139,7 @@ class CalculatedMatrixAnswerBox implements AnswerBox
             if ($multi == 0) {
                 $qnref = "$qn-0";
             } else {
-                $qnref = ($multi - 1) . '-' . ($qn % 1000);
+                $qnref = ($multi - 1) . '-' . (\IMathAS\assess2\questions\PartRef::partOf($qn));
             }
             if ($anstype === 'calccomplexmatrix') {
                 $shorttip = _('Enter a matrix of complex numbers');

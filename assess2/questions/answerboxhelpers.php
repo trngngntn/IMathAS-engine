@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/PartRef.php';
+
 function isNaN( $var ) {
   // is_numeric catches most things, but not php-generated NAN or INF
   // is_finite catches those
@@ -156,7 +158,7 @@ function setupnosolninf($qn, $answerbox, $answer, $ansformats, $la, $ansprompt, 
 	$answerbox = str_replace('<table ','<table style="display:inline-table;vertical-align:middle" ', $answerbox);
 	$nosoln = _('No solution');
 	$infsoln = _('Infinite number of solutions');
-    $partnum = $qn%1000;
+    $partnum = \IMathAS\assess2\questions\PartRef::partOf($qn);
     $out = '';
     $includeinf = in_array('nosolninf',$ansformats);
 

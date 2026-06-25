@@ -50,7 +50,7 @@ class NumberScorePart implements ScorePart
         if ($reltolerance === '' && $abstolerance === '') { $reltolerance = $defaultreltol;}
 
         $ansformats = array_map('trim',explode(',',$answerformat));
-        if ($multi) { $qn = ($qn+1)*1000+$partnum; }
+        if ($multi) { $qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum); }
         
         $hasUnits = in_array('units',$ansformats);
         if ($hasUnits) {

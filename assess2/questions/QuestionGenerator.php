@@ -2,6 +2,8 @@
 
 namespace IMathAS\assess2\questions;
 
+require_once __DIR__ . '/PartRef.php';
+
 require_once __DIR__ . "/../../assessment/mathphp2.php";
 require_once __DIR__ . "/../../assessment/mathparser.php";
 require_once __DIR__ . "/../../assessment/interpret5.php";
@@ -170,7 +172,7 @@ class QuestionGenerator
           unset($_SESSION['choicemap'][$assessmentId][$questionNumber]);
 
           foreach ($_SESSION['choicemap'][$assessmentId] as $k=>$v) {
-            if (floor($k/1000) == $questionNumber + 1) {
+            if (PartRef::belongsTo($k, $questionNumber)) {
               unset($_SESSION['choicemap'][$assessmentId][$k]);
             }
           }

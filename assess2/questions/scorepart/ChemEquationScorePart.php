@@ -37,7 +37,7 @@ class ChemEquationScorePart implements ScorePart
             ${$optionkey} = getOptionVal($options, $optionkey, $multi, $partnum);
         }
 
-        if ($multi) { $qn = ($qn+1)*1000+$partnum; }
+        if ($multi) { $qn = \IMathAS\assess2\questions\PartRef::pack($qn, $partnum); }
         $givenans = normalizemathunicode($givenans);
 
         $givenans = str_replace(['<->','<=>'], 'rightleftharpoons', $givenans);
