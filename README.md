@@ -26,7 +26,7 @@ The service is at `http://localhost:8088`. Verify with the smoke script:
 
 ## Endpoints
 
-### `POST /question` — render
+### `POST /render` — render
 
 Request body (JSON):
 
