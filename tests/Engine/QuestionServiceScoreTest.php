@@ -27,7 +27,8 @@ final class QuestionServiceScoreTest extends TestCase
             'answers' => [['id' => 'qn0', 'value' => '12']],
         ]));
 
-        self::assertEqualsWithDelta(1.0, $result->scores[0] ?? 0, 0.01);
+        self::assertSame('qn0', $result->parts[0]['id']);
+        self::assertEqualsWithDelta(1.0, $result->parts[0]['score'] ?? 0, 0.01);
         self::assertTrue($result->allAnswered);
     }
 
@@ -40,7 +41,7 @@ final class QuestionServiceScoreTest extends TestCase
             'answers' => [['id' => 'qn0', 'value' => '99']],
         ]));
 
-        self::assertEqualsWithDelta(0.0, $result->scores[0] ?? 1, 0.01);
+        self::assertEqualsWithDelta(0.0, $result->parts[0]['score'] ?? 1, 0.01);
         self::assertTrue($result->allAnswered);
     }
 
@@ -61,8 +62,10 @@ final class QuestionServiceScoreTest extends TestCase
             ],
         ]));
 
-        self::assertEqualsWithDelta(1.0, $result->raw[0] ?? 0, 0.01);
-        self::assertEqualsWithDelta(0.0, $result->raw[1] ?? 1, 0.01);
+        self::assertSame('qn0', $result->parts[0]['id']);
+        self::assertSame('qn1', $result->parts[1]['id']);
+        self::assertEqualsWithDelta(1.0, $result->parts[0]['raw'] ?? 0, 0.01);
+        self::assertEqualsWithDelta(0.0, $result->parts[1]['raw'] ?? 1, 0.01);
         self::assertTrue($result->allAnswered);
     }
 

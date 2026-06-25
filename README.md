@@ -79,9 +79,24 @@ Multipart — one entry per part:
 }
 ```
 
-Response: `{ "ok": true, "data": { "scores", "raw", "answeights", "allAnswered" }, "errors": [], "diagnostics": [] }`
-— `scores`/`raw`/`answeights` are per-part arrays (`scores` weight-split across
-parts, `raw` the per-part correctness).
+Response `data`: `{ parts, allAnswered }`, where `parts` is one object per
+answer part, tagged with the same id used to submit it:
+
+```json
+{
+  "parts": [
+    { "id": "qn0", "raw": 1, "weight": 1, "score": 0.5 },
+    { "id": "qn1", "raw": 0, "weight": 1, "score": 0 }
+  ],
+  "allAnswered": true
+}
+```
+
+- `raw` — per-part correctness: `1` right, `0` wrong, fractional for partial credit.
+- `weight` — the part's weight toward the whole question (defaults to `1`).
+- `score` — weighted, normalized contribution; **`sum(score)` is the overall
+  question score in `[0,1]`**. For a single-part question `score == raw`.
+- `allAnswered` — whether every scored part received an answer.
 
 Errors: `400` invalid request, `405` wrong method,
 `{ "ok": false, "error": { "code", "message" }, "diagnostics": [] }`.

@@ -15,7 +15,7 @@ SCORE=$(curl -fsS -X POST "$BASE/score" \
   -H 'Content-Type: application/json' \
   -d '{"qtype":"number","control":"$a = 5\n$b = 7\n$answer = $a + $b","seed":1234,"answers":[{"id":"qn0","value":"12"}]}')
 echo "$SCORE"
-echo "$SCORE" | grep -q '"scores":\[1\]' || { echo "ERROR: score did not return \"scores\":[1]" >&2; exit 1; }
+echo "$SCORE" | grep -q '"id":"qn0","raw":1' || { echo "ERROR: score did not return a correct qn0 part" >&2; exit 1; }
 echo
 
 echo "== score multipart by flat part ids qn0/qn1 (/score) =="
@@ -23,7 +23,7 @@ MULTI=$(curl -fsS -X POST "$BASE/score" \
   -H 'Content-Type: application/json' \
   -d '{"qtype":"multipart","control":"$anstypes = array(\"number\",\"number\")\n$answer[0] = 3\n$answer[1] = 4","seed":1234,"answers":[{"id":"qn0","value":"3"},{"id":"qn1","value":"99"}]}')
 echo "$MULTI"
-echo "$MULTI" | grep -q '"raw":\[1,0\]' || { echo "ERROR: multipart score did not return \"raw\":[1,0]" >&2; exit 1; }
+echo "$MULTI" | grep -q '"id":"qn1","raw":0' || { echo "ERROR: multipart score did not grade qn1 wrong" >&2; exit 1; }
 echo
 
 echo "== method guard /render (expect 405) =="

@@ -10,6 +10,7 @@ use IMathAS\Engine\Dto\RenderResult;
 use IMathAS\Engine\Dto\ScoreRequest;
 use IMathAS\Engine\Dto\ScoreResult;
 use IMathAS\Engine\Dto\Stype;
+use IMathAS\assess2\questions\PartRef;
 use PDO;
 
 /**
@@ -110,10 +111,25 @@ final class QuestionService
             }
         }
 
+        // Zip the engine's parallel per-part arrays into one object per part,
+        // each tagged with its input id (the same id the consumer submitted /
+        // /render emitted): qn0 for single-part, qn0/qn1/… for multipart.
+        $scores = array_values($result['scores'] ?? []);
+        $raw = array_values($result['raw'] ?? []);
+        $answeights = array_values($result['answeights'] ?? []);
+
+        $parts = [];
+        foreach ($raw as $i => $partRaw) {
+            $parts[] = [
+                'id' => 'qn' . PartRef::pack(self::QUESTION_SLOT, $i),
+                'raw' => (float) $partRaw,
+                'weight' => (float) ($answeights[$i] ?? 0),
+                'score' => (float) ($scores[$i] ?? 0),
+            ];
+        }
+
         return new ScoreResult(
-            scores: array_values($result['scores'] ?? []),
-            raw: array_values($result['raw'] ?? []),
-            answeights: array_values($result['answeights'] ?? []),
+            parts: $parts,
             allAnswered: (bool) ($result['allans'] ?? false),
             errors: array_values($result['errors'] ?? []),
         );

@@ -104,6 +104,6 @@ final class AnswerTypeMatrixTest extends TestCase
             'answers' => [['id' => 'qn0', 'value' => $answer]],
         ]));
 
-        self::assertEqualsWithDelta(1.0, $result->scores[0] ?? 0, 0.01, "qtype=$qtype did not score 1.0 for a correct answer");
+        self::assertEqualsWithDelta(1.0, $result->parts[0]['score'] ?? 0, 0.01, "qtype=$qtype did not score 1.0 for a correct answer");
     }
 }

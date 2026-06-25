@@ -84,8 +84,12 @@ Bad input → 400, wrong method → 405, both
   multipart part — see PartRef gotcha below); the consumer echoes back what
   `/render` emitted. `QuestionService::score` writes each `$_POST[id] = value`
   (snapshotting/restoring prior values) and the engine reads them.
-- **score** `data`: `{ scores, raw, answeights, allAnswered }` (per-part arrays;
-  `scores` is weight-split across parts, `raw` is per-part correctness).
+- **score** `data`: `{ parts, allAnswered }`. `parts` is one object per part,
+  `{ id, raw, weight, score }` — `id` matches the submitted/rendered input id;
+  `raw` per-part correctness; `weight` the part's weight; `score` the weighted,
+  normalized contribution (`sum(score)` = overall, 0..1). Single-part has one
+  entry with `score == raw`. (`QuestionService::score` zips the engine's parallel
+  `scores`/`raw`/`answeights` arrays and tags each via `PartRef`.)
 - **`errors`** — engine domain errors (bad question code, warnings raised while
   the engine evals it), as messages.
 - **`diagnostics`** — PHP warnings/notices/deprecations captured *outside* the

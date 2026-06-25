@@ -11,17 +11,14 @@ final class ScoreResultTest extends TestCase
 {
     public function test_to_array_round_trip(): void
     {
-        $result = new ScoreResult(
-            scores: [1.0],
-            raw: ['12'],
-            answeights: [1],
-            allAnswered: true,
-        );
+        $parts = [
+            ['id' => 'qn0', 'raw' => 1.0, 'weight' => 1.0, 'score' => 0.5],
+            ['id' => 'qn1', 'raw' => 0.0, 'weight' => 1.0, 'score' => 0.0],
+        ];
+        $result = new ScoreResult(parts: $parts, allAnswered: true);
 
         self::assertSame([
-            'scores' => [1.0],
-            'raw' => ['12'],
-            'answeights' => [1],
+            'parts' => $parts,
             'allAnswered' => true,
         ], $result->toArray());
     }
