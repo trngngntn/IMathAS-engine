@@ -18,8 +18,12 @@ use PDO;
  */
 final class QuestionService
 {
-    /** Arbitrary but consistent engine question slot index. */
-    public const int QUESTION_SLOT = 27;
+    /**
+     * Engine question slot. Fixed at 0 so the only-question's answer ids come
+     * out flat: single-part is `qn0`, and multipart parts are `qn0`, `qn1`, …
+     * (see {@see \IMathAS\assess2\questions\PartRef}).
+     */
+    public const int QUESTION_SLOT = 0;
 
     public function __construct(private readonly PDO $dbh)
     {
@@ -82,20 +86,27 @@ final class QuestionService
             }
         }
 
-        // The engine reads the student answer from $_POST['qn'.<slot>]. Capture
-        // any prior value and restore it in finally so we never leave residue in
-        // the superglobal, even if scoreQuestion() throws.
-        $slotKey = 'qn' . self::QUESTION_SLOT;
-        $hadPrev = array_key_exists($slotKey, $_POST);
-        $prev = $_POST[$slotKey] ?? null;
-        $_POST[$slotKey] = $req->answer;
+        // The engine reads student answers from $_POST by input id — 'qn0' for a
+        // single-part question, 'qn0','qn1',… for multipart parts (each id is the
+        // input name emitted in the rendered question HTML). Snapshot any prior
+        // values (deduped by id) and restore them in finally so we never leave
+        // residue in the superglobal, even if scoreQuestion() throws.
+        $prior = [];  // id => [bool $present, mixed $value], deduped by id
+        foreach ($req->answers as $answer) {
+            if (!array_key_exists($answer->id, $prior)) {
+                $prior[$answer->id] = [array_key_exists($answer->id, $_POST), $_POST[$answer->id] ?? null];
+            }
+            $_POST[$answer->id] = $answer->value;
+        }
         try {
             $result = $a2->scoreQuestion(self::QUESTION_SLOT, $partsToScore);
         } finally {
-            if ($hadPrev) {
-                $_POST[$slotKey] = $prev;
-            } else {
-                unset($_POST[$slotKey]);
+            foreach ($prior as $id => [$present, $value]) {
+                if ($present) {
+                    $_POST[$id] = $value;
+                } else {
+                    unset($_POST[$id]);
+                }
             }
         }
 

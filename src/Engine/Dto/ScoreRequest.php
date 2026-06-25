@@ -8,24 +8,36 @@ use IMathAS\Engine\EngineException;
 
 final class ScoreRequest
 {
+    /**
+     * @param list<Answer> $answers   submitted fields, keyed by engine input id
+     * @param ?list<int>   $partsToScore  part indices to grade, or null for all
+     */
     public function __construct(
         public readonly string $qtype,
         public readonly string $control,
         public readonly int $seed,
-        public readonly string $answer,
+        public readonly array $answers,
         public readonly ?array $partsToScore,
     ) {
     }
 
     public static function fromArray(array $data): self
     {
-        foreach (['qtype', 'control', 'answer'] as $required) {
+        foreach (['qtype', 'control'] as $required) {
             if (!isset($data[$required]) || !is_string($data[$required]) || $data[$required] === '') {
                 throw new EngineException('invalid_request', "Missing or empty required field: {$required}");
             }
         }
         if (!isset($data['seed']) || !is_numeric($data['seed'])) {
             throw new EngineException('invalid_request', 'Missing or non-numeric required field: seed');
+        }
+        if (!isset($data['answers']) || !is_array($data['answers']) || $data['answers'] === []) {
+            throw new EngineException('invalid_request', 'Missing or empty required field: answers');
+        }
+
+        $answers = [];
+        foreach ($data['answers'] as $entry) {
+            $answers[] = Answer::fromArray($entry);
         }
 
         $parts = null;
@@ -44,7 +56,7 @@ final class ScoreRequest
             qtype: $data['qtype'],
             control: $data['control'],
             seed: (int) $data['seed'],
-            answer: $data['answer'],
+            answers: $answers,
             partsToScore: $parts,
         );
     }

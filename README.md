@@ -50,19 +50,38 @@ Response: `{ "ok": true, "data": { "seed", "question", "solution", "vars", "answ
 
 ### `POST /score` — grade
 
-Request body (JSON): `qtype`, `control`, `seed`, `answer` (required),
+Request body (JSON): `qtype`, `control`, `seed`, `answers` (required),
 optional `partsToScore` (JSON array of part indices).
+
+`answers` is a list of `{ "id", "value" }` — the same shape for single-part and
+multipart questions. Each `id` is an input name from the rendered question HTML;
+`value` is the student's entry. A single-part question has one box, `qn0`; a
+multipart question has one per part, `qn0`, `qn1`, … (echo back whatever
+`/render` emitted).
 
 ```json
 {
   "qtype": "number",
   "control": "$a = 5\n$b = 7\n$answer = $a + $b",
   "seed": 1234,
-  "answer": "12"
+  "answers": [{ "id": "qn0", "value": "12" }]
+}
+```
+
+Multipart — one entry per part:
+
+```json
+{
+  "qtype": "multipart",
+  "control": "$anstypes = array(\"number\",\"number\")\n$answer[0] = 3\n$answer[1] = 4",
+  "seed": 1234,
+  "answers": [{ "id": "qn0", "value": "3" }, { "id": "qn1", "value": "4" }]
 }
 ```
 
 Response: `{ "ok": true, "data": { "scores", "raw", "answeights", "allAnswered" }, "errors": [], "diagnostics": [] }`
+— `scores`/`raw`/`answeights` are per-part arrays (`scores` weight-split across
+parts, `raw` the per-part correctness).
 
 Errors: `400` invalid request, `405` wrong method,
 `{ "ok": false, "error": { "code", "message" }, "diagnostics": [] }`.

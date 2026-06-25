@@ -17,6 +17,7 @@ require_once $dir . '/Diagnostics.php';
 require_once $dir . '/Dto/Stype.php';
 require_once $dir . '/Dto/RenderRequest.php';
 require_once $dir . '/Dto/RenderResult.php';
+require_once $dir . '/Dto/Answer.php';
 require_once $dir . '/Dto/ScoreRequest.php';
 require_once $dir . '/Dto/ScoreResult.php';
 require_once $dir . '/Http/JsonRequest.php';

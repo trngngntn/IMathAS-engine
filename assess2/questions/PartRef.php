@@ -17,6 +17,12 @@ namespace IMathAS\assess2\questions;
  * `% 1000` / `floor(.. / 1000)` inverses) across every answer box, every score
  * part, and the score/generate orchestrators. It now lives here once: change
  * the scheme in this class and every caller follows.
+ *
+ * The upstream `+ 1` offset existed only to keep one question's parts from
+ * colliding with another question's answer on a multi-question page. This
+ * engine renders exactly one question (slot 0), so the offset is dropped:
+ * part `p` of question 0 packs to `p`, giving flat ids `qn0`, `qn1`, `qn2` —
+ * the same `qn{index}` shape a single-part question already uses for `qn0`.
  */
 final class PartRef
 {
@@ -26,13 +32,13 @@ final class PartRef
     /** Reference for part `$part` (0-based) of question `$qn` (0-based). */
     public static function pack(int $qn, int $part): int
     {
-        return ($qn + 1) * self::STRIDE + $part;
+        return $qn * self::STRIDE + $part;
     }
 
     /** The 0-based question a reference belongs to. */
     public static function questionOf(int $ref): int
     {
-        return intdiv($ref, self::STRIDE) - 1;
+        return intdiv($ref, self::STRIDE);
     }
 
     /** The 0-based part index within its question. */

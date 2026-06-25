@@ -76,8 +76,9 @@ final class AnswerTypeMatrixTest extends TestCase
 
     /**
      * For the answer types with a single, simply-expressed correct answer, a
-     * correct submission must score a perfect 1.0. (Multi-box types like matrix
-     * and multipart need per-part POST keys and are covered by render only.)
+     * correct submission must score a perfect 1.0. The single answer box is
+     * `qn0` at slot 0. (Matrix needs per-cell sub-keys; multipart scoring is
+     * covered in QuestionServiceScoreTest.)
      *
      * @return array<string, array{0: string, 1: string, 2: string}>
      */
@@ -100,7 +101,7 @@ final class AnswerTypeMatrixTest extends TestCase
             'qtype' => $qtype,
             'control' => $control,
             'seed' => self::SEED,
-            'answer' => $answer,
+            'answers' => [['id' => 'qn0', 'value' => $answer]],
         ]));
 
         self::assertEqualsWithDelta(1.0, $result->scores[0] ?? 0, 0.01, "qtype=$qtype did not score 1.0 for a correct answer");

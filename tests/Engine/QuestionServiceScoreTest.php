@@ -24,7 +24,7 @@ final class QuestionServiceScoreTest extends TestCase
             'qtype' => 'number',
             'control' => "\$a = 5\n\$b = 7\n\$answer = \$a + \$b",
             'seed' => 1234,
-            'answer' => '12',
+            'answers' => [['id' => 'qn0', 'value' => '12']],
         ]));
 
         self::assertEqualsWithDelta(1.0, $result->scores[0] ?? 0, 0.01);
@@ -37,10 +37,32 @@ final class QuestionServiceScoreTest extends TestCase
             'qtype' => 'number',
             'control' => "\$a = 5\n\$b = 7\n\$answer = \$a + \$b",
             'seed' => 1234,
-            'answer' => '99',
+            'answers' => [['id' => 'qn0', 'value' => '99']],
         ]));
 
         self::assertEqualsWithDelta(0.0, $result->scores[0] ?? 1, 0.01);
+        self::assertTrue($result->allAnswered);
+    }
+
+    public function test_multipart_scores_each_part_by_flat_id(): void
+    {
+        // Two-part multipart; parts are addressed by flat ids qn0 and qn1
+        // (PartRef drops the upstream question offset at slot 0). First part
+        // correct, second wrong — the per-part raw scores prove each box was
+        // read and graded independently. (`scores` is weight-split across the
+        // two equal parts, so it reads [0.5, 0]; `raw` is the per-part result.)
+        $result = $this->service()->score(ScoreRequest::fromArray([
+            'qtype' => 'multipart',
+            'control' => "\$anstypes = array(\"number\",\"number\")\n\$answer[0] = 3\n\$answer[1] = 4",
+            'seed' => 1234,
+            'answers' => [
+                ['id' => 'qn0', 'value' => '3'],
+                ['id' => 'qn1', 'value' => '99'],
+            ],
+        ]));
+
+        self::assertEqualsWithDelta(1.0, $result->raw[0] ?? 0, 0.01);
+        self::assertEqualsWithDelta(0.0, $result->raw[1] ?? 1, 0.01);
         self::assertTrue($result->allAnswered);
     }
 
@@ -56,7 +78,7 @@ final class QuestionServiceScoreTest extends TestCase
             'qtype' => 'number',
             'control' => "\$a = 5\n\$answer = \$a",
             'seed' => 1234,
-            'answer' => '5',
+            'answers' => [['id' => 'qn0', 'value' => '5']],
         ]));
 
         self::assertSame($before, ob_get_level());
@@ -72,7 +94,7 @@ final class QuestionServiceScoreTest extends TestCase
             'qtype' => 'number',
             'control' => "\$answer = nonexistentfunc();",
             'seed' => 1234,
-            'answer' => '12',
+            'answers' => [['id' => 'qn0', 'value' => '12']],
         ]));
 
         self::assertNotEmpty($result->errors);

@@ -78,7 +78,14 @@ Bad input → 400, wrong method → 405, both
 `{ "ok": false, "error": { "code", "message" }, "diagnostics": [...] }`.
 
 - **render** `data`: `{ seed, question, solution, vars, answers, jsparams }`
-- **score** `data`: `{ scores, raw, answeights, allAnswered }`
+- **score** request: `{ qtype, control, seed, answers, partsToScore? }`. `answers`
+  is a list of `{ id, value }` — same shape for single and multipart. `id` is an
+  input name from the rendered HTML (`qn0` for single-part; `qn0`, `qn1`, … per
+  multipart part — see PartRef gotcha below); the consumer echoes back what
+  `/render` emitted. `QuestionService::score` writes each `$_POST[id] = value`
+  (snapshotting/restoring prior values) and the engine reads them.
+- **score** `data`: `{ scores, raw, answeights, allAnswered }` (per-part arrays;
+  `scores` is weight-split across parts, `raw` is per-part correctness).
 - **`errors`** — engine domain errors (bad question code, warnings raised while
   the engine evals it), as messages.
 - **`diagnostics`** — PHP warnings/notices/deprecations captured *outside* the
@@ -104,6 +111,17 @@ isolated scope).
   `QuestionHtmlGenerator`). `genVarsOutput` emits `$hidepreview=1` — this is
   verbatim from upstream and intentionally kept (preview markup is irrelevant to
   an API consumer).
+- **`PartRef` / flat answer ids (engine divergence):** upstream addresses a
+  multipart part's input as `($qn+1)*1000 + $part`, inlined identically across
+  ~38 answer boxes / score parts / orchestrators. That packing was centralized
+  into `assess2/questions/PartRef.php` (`pack`/`questionOf`/`partOf`/`belongsTo`)
+  and every site routed through it — so the scheme is defined once. The `+1`
+  offset (which only namespaced parts across *multiple* questions on a page) was
+  then dropped, since this engine renders exactly one question (`QUESTION_SLOT`
+  = 0). Result: ids are flat — single-part is `qn0`, multipart parts are `qn0`,
+  `qn1`, … (same shape). To change the scheme, edit `PartRef` only. This is a
+  deliberate, verified divergence from upstream (full suite + smoke + cross-qtype
+  render/score), so future engine syncs touching those files need care.
 - `includes/` is down to two files: `sanitize.php` (input/output sanitization
   helpers — `Sanitize::encodeStringForDisplay`, `generateAttributeString`, etc.,
   used throughout) and `Rand.php` (seeded RNG). Adding an engine path that needs
